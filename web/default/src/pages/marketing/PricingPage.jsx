@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import {
@@ -24,9 +24,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../../components/ui/accordion';
-import { CheckCircle2, Minus, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Minus, ArrowRight, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { API } from '../../helpers';
 
 const CellValue = ({ value }) => {
   if (typeof value === 'boolean') {
@@ -39,85 +40,118 @@ const CellValue = ({ value }) => {
   return <span className='text-sm'>{value}</span>;
 };
 
+const formatPrice = (cents) => {
+  const yuan = cents / 100;
+  return yuan === 0 ? null : `¥${yuan}`;
+};
+
+const buildFeatures = (plan, t) => {
+  const features = [];
+  if (plan.price_cents_monthly === 0) {
+    features.push(t('pricing.plans.lite_f1'));
+  } else {
+    features.push(t('pricing.plans.pro_f1'));
+  }
+  const hours = plan.window_duration_sec / 3600;
+  features.push(
+    `${hours}h ${t('pricing.compare.window_limit')}: ${plan.window_limit_count} ${t('admin.plan.unit_requests')}`
+  );
+  if (plan.weekly_limit_count > 0) {
+    features.push(
+      `${t('pricing.compare.weekly_limit')}: ${plan.weekly_limit_count} ${t('admin.plan.unit_requests')}`
+    );
+  }
+  features.push(
+    plan.overage_rate_type === 'api'
+      ? t('pricing.compare.api_rate')
+      : t('pricing.compare.pause')
+  );
+  if (plan.overage_rate_type === 'api') {
+    features.push(t('pricing.plans.pro_f4'));
+  }
+  return features;
+};
+
 const PricingPage = () => {
   const { t } = useTranslation();
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const plans = [
-    {
-      name: 'Lite',
-      description: t('pricing.plans.lite_desc'),
-      price: t('pricing.plans.free'),
-      priceSuffix: '',
-      features: [
-        t('pricing.plans.lite_f1'),
-        t('pricing.plans.lite_f2'),
-        t('pricing.plans.lite_f3'),
-        t('pricing.plans.lite_f4'),
-      ],
-      cta: t('pricing.plans.free_register'),
-      ctaVariant: 'outline',
-      highlighted: false,
-    },
-    {
-      name: 'Pro',
-      description: t('pricing.plans.pro_desc'),
-      price: '¥140',
-      priceSuffix: t('pricing.plans.per_month'),
-      features: [
-        t('pricing.plans.pro_f1'),
-        t('pricing.plans.pro_f2'),
-        t('pricing.plans.pro_f3'),
-        t('pricing.plans.pro_f4'),
-        t('pricing.plans.pro_f5'),
-      ],
-      cta: t('pricing.plans.get_started'),
-      ctaVariant: 'default',
-      highlighted: true,
-    },
-    {
-      name: 'Max 5x',
-      description: t('pricing.plans.max5x_desc'),
-      price: '¥700',
-      priceSuffix: t('pricing.plans.per_month'),
-      features: [
-        t('pricing.plans.max5x_f1'),
-        t('pricing.plans.max5x_f2'),
-        t('pricing.plans.max5x_f3'),
-        t('pricing.plans.max5x_f4'),
-        t('pricing.plans.max5x_f5'),
-      ],
-      cta: t('pricing.plans.get_started'),
-      ctaVariant: 'outline',
-      highlighted: false,
-    },
-    {
-      name: 'Max 20x',
-      description: t('pricing.plans.max20x_desc'),
-      price: '¥1400',
-      priceSuffix: t('pricing.plans.per_month'),
-      features: [
-        t('pricing.plans.max20x_f1'),
-        t('pricing.plans.max20x_f2'),
-        t('pricing.plans.max20x_f3'),
-        t('pricing.plans.max20x_f4'),
-        t('pricing.plans.max20x_f5'),
-      ],
-      cta: t('pricing.plans.contact_us'),
-      ctaVariant: 'outline',
-      highlighted: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await API.get('/api/plan/');
+        if (res.data.success) {
+          const sorted = (res.data.data || []).sort(
+            (a, b) => (a.priority || 0) - (b.priority || 0)
+          );
+          setPlans(sorted);
+        } else {
+          setError(res.data.message);
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+      setLoading(false);
+    };
+    fetchPlans();
+  }, []);
 
-  const comparisonFeatures = [
-    { feature: t('pricing.compare.basic_models'), lite: true, pro: true, max5x: true, max20x: true },
-    { feature: t('pricing.compare.advanced_models'), lite: false, pro: true, max5x: true, max20x: true },
-    { feature: t('pricing.compare.dedicated'), lite: false, pro: false, max5x: false, max20x: true },
-    { feature: t('pricing.compare.window_limit'), lite: t('pricing.compare.10_req'), pro: t('pricing.compare.45_req'), max5x: t('pricing.compare.225_req'), max20x: t('pricing.compare.900_req') },
-    { feature: t('pricing.compare.overage'), lite: t('pricing.compare.pause'), pro: t('pricing.compare.api_rate'), max5x: t('pricing.compare.api_rate'), max20x: t('pricing.compare.api_rate') },
-    { feature: t('pricing.compare.monthly_cap'), lite: '-', pro: t('pricing.compare.configurable'), max5x: t('pricing.compare.configurable'), max20x: t('pricing.compare.configurable') },
-    { feature: t('pricing.compare.booster'), lite: false, pro: true, max5x: true, max20x: true },
-    { feature: t('pricing.compare.priority_support'), lite: false, pro: true, max5x: true, max20x: true },
-  ];
+  const planCards = plans.map((plan) => {
+    const price = formatPrice(plan.price_cents_monthly);
+    const highlighted = plan.name === 'pro';
+    return {
+      id: plan.id,
+      name: plan.display_name || plan.name,
+      description: plan.description || '',
+      price: price || t('pricing.plans.free'),
+      priceSuffix: price ? t('pricing.plans.per_month') : '',
+      features: buildFeatures(plan, t),
+      cta: price ? t('pricing.plans.get_started') : t('pricing.plans.free_register'),
+      ctaVariant: highlighted ? 'default' : 'outline',
+      highlighted,
+    };
+  });
+
+  const comparisonFeatures = (() => {
+    if (plans.length === 0) return [];
+    const rows = [];
+
+    // Window limit row
+    const windowRow = { feature: t('pricing.compare.window_limit') };
+    plans.forEach((p) => {
+      windowRow[p.name] = `${p.window_limit_count}`;
+    });
+    rows.push(windowRow);
+
+    // Weekly limit row
+    const weeklyRow = { feature: t('pricing.compare.weekly_limit') };
+    plans.forEach((p) => {
+      weeklyRow[p.name] = p.weekly_limit_count > 0 ? `${p.weekly_limit_count}` : '-';
+    });
+    rows.push(weeklyRow);
+
+    // Overage row
+    const overageRow = { feature: t('pricing.compare.overage') };
+    plans.forEach((p) => {
+      overageRow[p.name] =
+        p.overage_rate_type === 'api'
+          ? t('pricing.compare.api_rate')
+          : t('pricing.compare.pause');
+    });
+    rows.push(overageRow);
+
+    // Monthly cap row
+    const capRow = { feature: t('pricing.compare.monthly_cap') };
+    plans.forEach((p) => {
+      capRow[p.name] =
+        p.overage_rate_type === 'api' ? t('pricing.compare.configurable') : '-';
+    });
+    rows.push(capRow);
+
+    return rows;
+  })();
 
   const faqs = [
     { question: t('pricing.faq.q1'), answer: t('pricing.faq.a1') },
@@ -126,6 +160,25 @@ const PricingPage = () => {
     { question: t('pricing.faq.q4'), answer: t('pricing.faq.a4') },
     { question: t('pricing.faq.q5'), answer: t('pricing.faq.a5') },
   ];
+
+  if (loading) {
+    return (
+      <div className='flex min-h-[60vh] items-center justify-center'>
+        <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='flex min-h-[60vh] flex-col items-center justify-center gap-4'>
+        <p className='text-muted-foreground'>{t('admin.plan.load_error')}</p>
+        <Button variant='outline' onClick={() => window.location.reload()}>
+          {t('pricing.retry', '重试')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className='flex flex-col'>
@@ -144,10 +197,15 @@ const PricingPage = () => {
       {/* Pricing Cards */}
       <section className='border-b py-16'>
         <div className='container mx-auto max-w-screen-xl px-4'>
-          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
-            {plans.map((plan) => (
+          <div className={cn(
+            'grid gap-6',
+            planCards.length <= 2 ? 'md:grid-cols-2' :
+            planCards.length === 3 ? 'md:grid-cols-3' :
+            'md:grid-cols-2 lg:grid-cols-4'
+          )}>
+            {planCards.map((plan) => (
               <Card
-                key={plan.name}
+                key={plan.id}
                 className={cn(
                   'flex flex-col',
                   plan.highlighted && 'border-primary shadow-lg'
@@ -197,47 +255,43 @@ const PricingPage = () => {
       </section>
 
       {/* Feature Comparison Table */}
-      <section className='border-b py-16'>
-        <div className='container mx-auto max-w-screen-xl px-4'>
-          <h2 className='mb-8 text-center text-2xl font-bold tracking-tight'>
-            {t('pricing.compare.title')}
-          </h2>
-          <div className='overflow-x-auto'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='w-[200px]'>{t('pricing.compare.feature')}</TableHead>
-                  <TableHead className='text-center'>Lite</TableHead>
-                  <TableHead className='text-center'>Pro</TableHead>
-                  <TableHead className='text-center'>Max 5x</TableHead>
-                  <TableHead className='text-center'>Max 20x</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {comparisonFeatures.map((row) => (
-                  <TableRow key={row.feature}>
-                    <TableCell className='font-medium'>
-                      {row.feature}
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <CellValue value={row.lite} />
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <CellValue value={row.pro} />
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <CellValue value={row.max5x} />
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <CellValue value={row.max20x} />
-                    </TableCell>
+      {plans.length > 0 && (
+        <section className='border-b py-16'>
+          <div className='container mx-auto max-w-screen-xl px-4'>
+            <h2 className='mb-8 text-center text-2xl font-bold tracking-tight'>
+              {t('pricing.compare.title')}
+            </h2>
+            <div className='overflow-x-auto'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-[200px]'>{t('pricing.compare.feature')}</TableHead>
+                    {plans.map((p) => (
+                      <TableHead key={p.id} className='text-center'>
+                        {p.display_name || p.name}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {comparisonFeatures.map((row) => (
+                    <TableRow key={row.feature}>
+                      <TableCell className='font-medium'>
+                        {row.feature}
+                      </TableCell>
+                      {plans.map((p) => (
+                        <TableCell key={p.id} className='text-center'>
+                          <CellValue value={row[p.name]} />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* FAQ Section */}
       <section className='border-b py-16'>

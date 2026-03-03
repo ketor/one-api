@@ -33,6 +33,7 @@ const sidebarItemKeys = [
 const adminSidebarItemKeys = [
   { key: 'nav.sidebar.admin_dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
   { key: 'nav.sidebar.user_management', to: '/user', icon: Users },
+  { key: 'nav.sidebar.plan_management', to: '/admin/plans', icon: CreditCard },
   { key: 'nav.sidebar.channel_management', to: '/channel', icon: Network },
   { key: 'nav.sidebar.redemption', to: '/redemption', icon: Ticket },
   { key: 'nav.sidebar.logs', to: '/log', icon: FileText },

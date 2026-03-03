@@ -33,6 +33,7 @@ const DocsBilling = () => {
                 <TableHead>{t('docs.billing.col_plan')}</TableHead>
                 <TableHead>{t('docs.billing.col_price')}</TableHead>
                 <TableHead>{t('docs.billing.col_window_limit')}</TableHead>
+                <TableHead>{t('docs.billing.col_weekly_limit')}</TableHead>
                 <TableHead>{t('docs.billing.col_models')}</TableHead>
                 <TableHead>{t('docs.billing.col_overage')}</TableHead>
               </TableRow>
@@ -42,6 +43,7 @@ const DocsBilling = () => {
                 <TableCell className='font-medium'>Lite</TableCell>
                 <TableCell>{t('docs.billing.plan_lite_price')}</TableCell>
                 <TableCell>{t('docs.billing.plan_lite_window')}</TableCell>
+                <TableCell>{t('docs.billing.plan_lite_weekly')}</TableCell>
                 <TableCell>{t('docs.billing.plan_lite_models')}</TableCell>
                 <TableCell>{t('docs.billing.plan_lite_overage')}</TableCell>
               </TableRow>
@@ -49,6 +51,7 @@ const DocsBilling = () => {
                 <TableCell className='font-medium'>Pro</TableCell>
                 <TableCell>{t('docs.billing.plan_pro_price')}</TableCell>
                 <TableCell>{t('docs.billing.plan_pro_window')}</TableCell>
+                <TableCell>{t('docs.billing.plan_pro_weekly')}</TableCell>
                 <TableCell>{t('docs.billing.plan_pro_models')}</TableCell>
                 <TableCell>{t('docs.billing.plan_pro_overage')}</TableCell>
               </TableRow>
@@ -56,6 +59,7 @@ const DocsBilling = () => {
                 <TableCell className='font-medium'>Max 5x</TableCell>
                 <TableCell>{t('docs.billing.plan_max5x_price')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max5x_window')}</TableCell>
+                <TableCell>{t('docs.billing.plan_max5x_weekly')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max5x_models')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max5x_overage')}</TableCell>
               </TableRow>
@@ -63,6 +67,7 @@ const DocsBilling = () => {
                 <TableCell className='font-medium'>Max 20x</TableCell>
                 <TableCell>{t('docs.billing.plan_max20x_price')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max20x_window')}</TableCell>
+                <TableCell>{t('docs.billing.plan_max20x_weekly')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max20x_models')}</TableCell>
                 <TableCell>{t('docs.billing.plan_max20x_overage')}</TableCell>
               </TableRow>

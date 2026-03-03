@@ -356,6 +356,10 @@
       "wechat_id_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
       "email": "已绑定的邮箱账户",
       "email_placeholder": "此项只读，需要用户通过个人设置页面的相关绑定按钮进行绑定，不可直接修改",
+      "plan": "套餐级别",
+      "plan_placeholder": "选择套餐",
+      "no_plan": "无订阅",
+      "plan_updated": "套餐更新成功",
       "buttons": {
         "submit": "提交",
         "cancel": "取消"
@@ -363,6 +367,9 @@
     },
     "add": {
       "title": "创建新用户账户"
+    },
+    "create": {
+      "plan": "指定套餐"
     },
     "messages": {
       "update_success": "用户信息更新成功！",
@@ -398,7 +405,8 @@
         "by_used_quota": "按已用额度排序",
         "by_request_count": "按请求次数排序"
       },
-      "sort_by": "排序方式"
+      "sort_by": "排序方式",
+      "plan": "套餐"
     },
     "buttons": {
       "add": "添加新的用户",
@@ -1202,6 +1210,7 @@
       "overage_blocked": "超出后暂停服务",
       "monthly_limit": "月消费上限 ¥{{amount}}",
       "no_monthly_limit": "无月消费上限",
+      "weekly_limit": "每周限额 {{count}} 次",
       "current": "当前套餐",
       "upgrade": "升级",
       "downgrade": "降级",
@@ -1245,6 +1254,7 @@
       "redemption": "兑换管理",
       "logs": "日志",
       "system_settings": "系统设置",
+      "plan_management": "套餐管理",
       "current_plan": "当前套餐",
       "free_plan": "免费版",
       "loading": "加载中...",
@@ -1391,7 +1401,8 @@
       "monthly_cap": "月消费上限",
       "configurable": "可设置",
       "booster": "加油包支持",
-      "priority_support": "优先支持"
+      "priority_support": "优先支持",
+      "weekly_limit": "每周限额"
     },
     "faq": {
       "title": "常见问题",
@@ -1600,22 +1611,27 @@
       "col_price": "月费",
       "col_window_limit": "5h 窗口限额",
       "col_models": "可用模型",
+      "col_weekly_limit": "每周限额",
       "col_overage": "超额策略",
       "plan_lite_price": "免费",
       "plan_lite_window": "10 次请求",
       "plan_lite_models": "基础模型",
+      "plan_lite_weekly": "200 次",
       "plan_lite_overage": "暂停使用",
       "plan_pro_price": "¥140",
       "plan_pro_window": "45 次请求",
       "plan_pro_models": "全部模型",
+      "plan_pro_weekly": "1,000 次",
       "plan_pro_overage": "按 API 费率计费",
       "plan_max5x_price": "¥700",
       "plan_max5x_window": "225 次请求",
       "plan_max5x_models": "全部 + 高级模型",
+      "plan_max5x_weekly": "5,000 次",
       "plan_max5x_overage": "按 API 费率计费",
       "plan_max20x_price": "¥1,400",
       "plan_max20x_window": "900 次请求",
       "plan_max20x_models": "全部 + 高级 + 独占实例",
+      "plan_max20x_weekly": "20,000 次",
       "plan_max20x_overage": "按 API 费率计费",
       "plans_compare_hint": "查看完整的功能对比和套餐详情，请访问",
       "plans_compare_link": "定价页面",
@@ -1796,6 +1812,38 @@
       "delete_confirm": "确定要删除用户 {{username}} 吗？此操作不可撤销。",
       "cancel": "取消",
       "confirm_delete": "确认删除"
+    },
+    "plan": {
+      "title": "套餐管理",
+      "description": "管理平台所有订阅套餐，包括定价、窗口限额和超额策略。",
+      "create": "新建套餐",
+      "edit": "编辑套餐",
+      "delete": "删除套餐",
+      "delete_confirm": "确定要删除套餐「{{name}}」吗？",
+      "delete_has_users": "该套餐有活跃用户正在使用，请先迁移用户后再删除",
+      "col_name": "名称",
+      "col_display_name": "显示名",
+      "col_price": "月费",
+      "col_window_limit": "5h 窗口限额",
+      "col_window_duration": "窗口时长",
+      "col_weekly_limit": "每周限额",
+      "col_overage": "超额策略",
+      "col_status": "状态",
+      "col_priority": "优先级",
+      "col_monthly_cap": "月消费上限",
+      "col_actions": "操作",
+      "status_enabled": "启用",
+      "status_disabled": "禁用",
+      "overage_api": "按 API 费率计费",
+      "overage_blocked": "暂停使用",
+      "save": "保存",
+      "cancel": "取消",
+      "save_success": "套餐保存成功",
+      "delete_success": "套餐删除成功",
+      "load_error": "加载套餐列表失败",
+      "unit_yuan": "元/月",
+      "unit_hours": "小时",
+      "unit_requests": "次"
     }
   },
   "terms": {

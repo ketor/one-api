@@ -13,6 +13,7 @@ import (
 	"github.com/songquanpeng/one-api/common"
 	"github.com/songquanpeng/one-api/common/config"
 	"github.com/songquanpeng/one-api/common/ctxkey"
+	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/common/i18n"
 	"github.com/songquanpeng/one-api/common/random"
 	"github.com/songquanpeng/one-api/model"
@@ -21,6 +22,12 @@ import (
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type UserWithPlan struct {
+	*model.User
+	PlanName string `json:"plan_name"`
+	PlanId   int    `json:"plan_id"`
 }
 
 func Login(c *gin.Context) {
@@ -184,6 +191,39 @@ func Register(c *gin.Context) {
 	return
 }
 
+func attachPlanInfo(users []*model.User) []UserWithPlan {
+	if len(users) == 0 {
+		return []UserWithPlan{}
+	}
+	userIds := make([]int, len(users))
+	for i, u := range users {
+		userIds[i] = u.Id
+	}
+	subMap, _ := model.GetActiveSubscriptionsByUserIds(userIds)
+	// Collect unique plan IDs
+	planIds := make(map[int]bool)
+	for _, sub := range subMap {
+		planIds[sub.PlanId] = true
+	}
+	planNameMap := make(map[int]string)
+	for pid := range planIds {
+		plan, err := model.GetPlanById(pid)
+		if err == nil {
+			planNameMap[pid] = plan.DisplayName
+		}
+	}
+	result := make([]UserWithPlan, len(users))
+	for i, u := range users {
+		uwp := UserWithPlan{User: u}
+		if sub, ok := subMap[u.Id]; ok {
+			uwp.PlanId = sub.PlanId
+			uwp.PlanName = planNameMap[sub.PlanId]
+		}
+		result[i] = uwp
+	}
+	return result
+}
+
 func GetAllUsers(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
@@ -204,7 +244,7 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    users,
+		"data":    attachPlanInfo(users),
 	})
 }
 
@@ -221,7 +261,7 @@ func SearchUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    users,
+		"data":    attachPlanInfo(users),
 	})
 	return
 }
@@ -251,10 +291,19 @@ func GetUser(c *gin.Context) {
 		})
 		return
 	}
+	uwp := UserWithPlan{User: user}
+	sub, err := model.GetActiveSubscription(id)
+	if err == nil {
+		uwp.PlanId = sub.PlanId
+		plan, err := model.GetPlanById(sub.PlanId)
+		if err == nil {
+			uwp.PlanName = plan.DisplayName
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    user,
+		"data":    uwp,
 	})
 	return
 }
@@ -542,42 +591,65 @@ func DeleteSelf(c *gin.Context) {
 	return
 }
 
+type createUserRequest struct {
+	model.User
+	PlanId int `json:"plan_id"`
+}
+
 func CreateUser(c *gin.Context) {
 	ctx := c.Request.Context()
-	var user model.User
-	err := json.NewDecoder(c.Request.Body).Decode(&user)
-	if err != nil || user.Username == "" || user.Password == "" {
+	var req createUserRequest
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	if err != nil || req.Username == "" || req.Password == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": i18n.Translate(c, "invalid_parameter"),
 		})
 		return
 	}
-	if err := common.Validate.Struct(&user); err != nil {
+	if err := common.Validate.Struct(&req.User); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": i18n.Translate(c, "invalid_input"),
 		})
 		return
 	}
-	if user.DisplayName == "" {
-		user.DisplayName = user.Username
+	if req.DisplayName == "" {
+		req.DisplayName = req.Username
 	}
 	myRole := c.GetInt("role")
-	if user.Role >= myRole {
+	if req.Role >= myRole {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "无法创建权限大于等于自己的用户",
 		})
 		return
 	}
+	// Validate plan_id if specified
+	if req.PlanId > 0 {
+		plan, err := model.GetPlanById(req.PlanId)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "指定的套餐不存在",
+			})
+			return
+		}
+		if plan.Status != model.PlanStatusEnabled {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "指定的套餐未启用",
+			})
+			return
+		}
+	}
 	// Even for admin users, we cannot fully trust them!
 	cleanUser := model.User{
-		Username:    user.Username,
-		Password:    user.Password,
-		DisplayName: user.DisplayName,
+		Username:    req.Username,
+		Password:    req.Password,
+		DisplayName: req.DisplayName,
 	}
-	if err := cleanUser.Insert(ctx, 0); err != nil {
+	if err := cleanUser.Insert(ctx, 0, req.PlanId); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -590,6 +662,121 @@ func CreateUser(c *gin.Context) {
 		"message": "",
 	})
 	return
+}
+
+type adminUpdateUserPlanRequest struct {
+	PlanId int `json:"plan_id"`
+}
+
+func AdminUpdateUserPlan(c *gin.Context) {
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无效的用户ID",
+		})
+		return
+	}
+
+	var req adminUpdateUserPlanRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Validate plan exists and is enabled
+	plan, err := model.GetPlanById(req.PlanId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "套餐不存在",
+		})
+		return
+	}
+	if plan.Status != model.PlanStatusEnabled {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "套餐未启用",
+		})
+		return
+	}
+
+	// Validate user exists
+	_, err = model.GetUserById(userId, false)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户不存在",
+		})
+		return
+	}
+
+	// Check for existing active subscription
+	now := helper.GetTimestamp()
+	existingSub, err := model.GetActiveSubscription(userId)
+	if err == nil && existingSub.Id > 0 {
+		// Update existing subscription's plan
+		existingSub.PlanId = req.PlanId
+		existingSub.UpdatedTime = now
+		if err := model.DB.Save(existingSub).Error; err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+	} else {
+		// Create new subscription
+		periodEnd := now + 30*24*3600
+		newSub := &model.Subscription{
+			UserId:             userId,
+			PlanId:             req.PlanId,
+			Status:             model.SubscriptionStatusActive,
+			CurrentPeriodStart: now,
+			CurrentPeriodEnd:   periodEnd,
+			MonthlySpentCents:  0,
+			AutoRenew:          true,
+		}
+		if err := model.CreateSubscription(newSub); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+	}
+
+	// Sync user group to match plan
+	if err := model.UpdateUserGroupByPlan(userId, req.PlanId); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "套餐已更新但同步用户分组失败: " + err.Error(),
+		})
+		return
+	}
+
+	// Invalidate subscription cache
+	model.CacheInvalidateSubscription(userId)
+
+	// Create admin change order record
+	order := &model.Order{
+		UserId:        userId,
+		PlanId:        req.PlanId,
+		Type:          model.OrderTypeAdminChange,
+		AmountCents:   0,
+		Status:        model.OrderStatusPaid,
+		PaymentMethod: "admin",
+		PaidTime:      now,
+	}
+	_ = model.CreateOrder(order)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
 }
 
 type ManageRequest struct {

@@ -55,6 +55,27 @@ func GetSubscriptionById(id int) (*Subscription, error) {
 	return &sub, err
 }
 
+func GetActiveSubscriptionsByUserIds(userIds []int) (map[int]*Subscription, error) {
+	var subs []*Subscription
+	err := DB.Where("user_id IN ? AND status = ?", userIds, SubscriptionStatusActive).Find(&subs).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[int]*Subscription)
+	for _, sub := range subs {
+		result[sub.UserId] = sub
+	}
+	return result, nil
+}
+
+func CountActiveSubscriptionsByPlanId(planId int) (int64, error) {
+	var count int64
+	err := DB.Model(&Subscription{}).
+		Where("plan_id = ? AND status = ?", planId, SubscriptionStatusActive).
+		Count(&count).Error
+	return count, err
+}
+
 func CreateSubscription(sub *Subscription) error {
 	sub.CreatedTime = helper.GetTimestamp()
 	sub.UpdatedTime = helper.GetTimestamp()

@@ -89,6 +89,7 @@ func CreatePlan(c *gin.Context) {
 		PriceCentsMonthly:      plan.PriceCentsMonthly,
 		WindowLimitCount:       plan.WindowLimitCount,
 		WindowDurationSec:      plan.WindowDurationSec,
+		WeeklyLimitCount:       plan.WeeklyLimitCount,
 		MonthlySpendLimitCents: plan.MonthlySpendLimitCents,
 		OverageRateType:        plan.OverageRateType,
 		AllowedModels:          plan.AllowedModels,
@@ -148,6 +149,7 @@ func UpdatePlan(c *gin.Context) {
 	cleanPlan.PriceCentsMonthly = plan.PriceCentsMonthly
 	cleanPlan.WindowLimitCount = plan.WindowLimitCount
 	cleanPlan.WindowDurationSec = plan.WindowDurationSec
+	cleanPlan.WeeklyLimitCount = plan.WeeklyLimitCount
 	cleanPlan.MonthlySpendLimitCents = plan.MonthlySpendLimitCents
 	cleanPlan.OverageRateType = plan.OverageRateType
 	cleanPlan.AllowedModels = plan.AllowedModels
@@ -164,6 +166,7 @@ func UpdatePlan(c *gin.Context) {
 		})
 		return
 	}
+	model.CacheInvalidatePlan(cleanPlan.Id)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
@@ -188,6 +191,22 @@ func DeletePlan(c *gin.Context) {
 		})
 		return
 	}
+	// Check for active subscriptions using this plan
+	activeCount, err := model.CountActiveSubscriptionsByPlanId(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	if activeCount > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "该套餐有活跃用户正在使用，请先迁移用户后再删除",
+		})
+		return
+	}
 	err = plan.Delete()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -196,6 +215,7 @@ func DeletePlan(c *gin.Context) {
 		})
 		return
 	}
+	model.CacheInvalidatePlan(id)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",

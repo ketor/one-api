@@ -15,6 +15,9 @@ const PlanCard = ({ plan, currentPlanId, onSelect, isUpgrade, isDowngrade, class
 
   const features = [
     t('console.plan.requests_per_window', { count: plan.window_limit_count, hours: plan.window_duration_sec / 3600 }),
+    ...(plan.weekly_limit_count > 0
+      ? [t('console.plan.weekly_limit', { count: plan.weekly_limit_count })]
+      : []),
     plan.overage_rate_type === 'api' ? t('console.plan.overage_pay_per_use') : t('console.plan.overage_blocked'),
     plan.monthly_spend_limit_cents > 0
       ? t('console.plan.monthly_limit', { amount: (plan.monthly_spend_limit_cents / 100).toFixed(0) })

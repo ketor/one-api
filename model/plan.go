@@ -66,7 +66,7 @@ func (p *Plan) Insert() error {
 
 func (p *Plan) Update() error {
 	p.UpdatedTime = helper.GetTimestamp()
-	return DB.Model(p).Updates(p).Error
+	return DB.Save(p).Error
 }
 
 func (p *Plan) Delete() error {

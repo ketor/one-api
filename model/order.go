@@ -14,6 +14,7 @@ const (
 	OrderTypeUpgrade         = 3
 	OrderTypeDowngrade       = 4
 	OrderTypeBoosterPack     = 5
+	OrderTypeAdminChange     = 6
 )
 
 const (

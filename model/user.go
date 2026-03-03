@@ -117,7 +117,7 @@ func DeleteUserById(id int) (err error) {
 	return user.Delete()
 }
 
-func (user *User) Insert(ctx context.Context, inviterId int) error {
+func (user *User) Insert(ctx context.Context, inviterId int, planId ...int) error {
 	var err error
 	if user.Password != "" {
 		user.Password, err = common.Password2Hash(user.Password)
@@ -161,23 +161,44 @@ func (user *User) Insert(ctx context.Context, inviterId int) error {
 		// do not block
 		logger.SysError(fmt.Sprintf("create default token for user %d failed: %s", user.Id, result.Error.Error()))
 	}
-	// Auto-assign Lite (free) plan subscription for new users
-	assignDefaultSubscription(user.Id)
+	// Auto-assign plan subscription for new users
+	pid := 0
+	if len(planId) > 0 {
+		pid = planId[0]
+	}
+	assignSubscription(user.Id, pid)
 	return nil
 }
 
-func assignDefaultSubscription(userId int) {
-	litePlan, err := GetPlanByName("lite")
-	if err != nil {
-		logger.SysError(fmt.Sprintf("failed to get lite plan for new user %d: %s", userId, err.Error()))
-		return
+// AssignSubscription creates a subscription for the given user.
+// If planId == 0, it assigns the default "lite" plan.
+// If planId > 0, it assigns the specified plan.
+func AssignSubscription(userId int, planId int) {
+	assignSubscription(userId, planId)
+}
+
+func assignSubscription(userId int, planId int) {
+	var plan *Plan
+	var err error
+	if planId > 0 {
+		plan, err = GetPlanById(planId)
+		if err != nil {
+			logger.SysError(fmt.Sprintf("failed to get plan %d for user %d: %s", planId, userId, err.Error()))
+			return
+		}
+	} else {
+		plan, err = GetPlanByName("lite")
+		if err != nil {
+			logger.SysError(fmt.Sprintf("failed to get lite plan for new user %d: %s", userId, err.Error()))
+			return
+		}
 	}
 	now := helper.GetTimestamp()
 	// Set period to 30 days
 	periodEnd := now + 30*24*3600
 	sub := &Subscription{
 		UserId:             userId,
-		PlanId:             litePlan.Id,
+		PlanId:             plan.Id,
 		Status:             SubscriptionStatusActive,
 		CurrentPeriodStart: now,
 		CurrentPeriodEnd:   periodEnd,
@@ -187,12 +208,12 @@ func assignDefaultSubscription(userId int) {
 		UpdatedTime:        now,
 	}
 	if err := DB.Create(sub).Error; err != nil {
-		logger.SysError(fmt.Sprintf("failed to create lite subscription for user %d: %s", userId, err.Error()))
+		logger.SysError(fmt.Sprintf("failed to create subscription for user %d: %s", userId, err.Error()))
 		return
 	}
 	// Update user group to match plan
-	if litePlan.GroupName != "" {
-		err = DB.Model(&User{}).Where("id = ?", userId).Update("group", litePlan.GroupName).Error
+	if plan.GroupName != "" {
+		err = DB.Model(&User{}).Where("id = ?", userId).Update("group", plan.GroupName).Error
 		if err != nil {
 			logger.SysError(fmt.Sprintf("failed to update group for user %d: %s", userId, err.Error()))
 		}

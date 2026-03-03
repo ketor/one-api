@@ -56,6 +56,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Lazy-loaded pages - Admin
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminPlanManagement = lazy(() => import('./pages/admin/AdminPlanManagement'));
 const AdminKeysAudit = lazy(() => import('./pages/admin/AdminKeysAudit'));
 const AdminUsageMonitor = lazy(() => import('./pages/admin/AdminUsageMonitor'));
 const Channel = lazy(() => import('./pages/Channel'));
@@ -198,6 +199,7 @@ function App() {
           <Route path='/admin/dashboard' element={<AdminDashboard />} />
           <Route path='/admin/keys' element={<AdminKeysAudit />} />
           <Route path='/admin/usage' element={<AdminUsageMonitor />} />
+          <Route path='/admin/plans' element={<AdminPlanManagement />} />
           <Route path='/channel' element={<Channel />} />
           <Route path='/channel/edit/:id' element={<EditChannel />} />
           <Route path='/channel/add' element={<EditChannel />} />

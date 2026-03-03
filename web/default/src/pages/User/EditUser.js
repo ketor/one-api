@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API, showError, showSuccess } from '../../helpers';
+import { API, isAdmin, showError, showSuccess } from '../../helpers';
 import { renderQuotaWithPrompt } from '../../helpers/render';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -16,9 +17,11 @@ import {
 import { User, ArrowLeft } from 'lucide-react';
 
 const EditUser = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const userId = params.id;
   const navigate = useNavigate();
+  const userIsAdmin = isAdmin();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [inputs, setInputs] = useState({
@@ -30,8 +33,11 @@ const EditUser = () => {
     email: '',
     quota: 0,
     group: 'default',
+    plan_id: 0,
   });
+  const [originalPlanId, setOriginalPlanId] = useState(0);
   const [groupOptions, setGroupOptions] = useState([]);
+  const [planOptions, setPlanOptions] = useState([]);
 
   const handleInputChange = (name, value) => {
     setInputs((prev) => ({ ...prev, [name]: value }));
@@ -43,6 +49,18 @@ const EditUser = () => {
       setGroupOptions(res.data.data || []);
     } catch (error) {
       showError(error.message);
+    }
+  };
+
+  const fetchPlans = async () => {
+    try {
+      const res = await API.get('/api/plan/');
+      const { success, data } = res.data;
+      if (success) {
+        setPlanOptions(data || []);
+      }
+    } catch (error) {
+      // silently fail - plans are optional
     }
   };
 
@@ -65,6 +83,7 @@ const EditUser = () => {
       const { success, message, data } = res.data;
       if (success) {
         data.password = '';
+        setOriginalPlanId(data.plan_id || 0);
         setInputs(data);
       } else {
         showError(message);
@@ -79,6 +98,9 @@ const EditUser = () => {
     loadUser();
     if (userId) {
       fetchGroups();
+      if (userIsAdmin) {
+        fetchPlans();
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -97,6 +119,22 @@ const EditUser = () => {
       }
       const { success, message } = res.data;
       if (success) {
+        // If admin changed the plan, update it separately
+        if (userId && userIsAdmin && inputs.plan_id !== originalPlanId) {
+          try {
+            const planRes = await API.put(`/api/user/${userId}/plan`, {
+              plan_id: inputs.plan_id,
+            });
+            if (planRes.data.success) {
+              showSuccess(t('user.edit.plan_updated'));
+              setOriginalPlanId(inputs.plan_id);
+            } else {
+              showError(planRes.data.message);
+            }
+          } catch (planErr) {
+            showError(planErr.message);
+          }
+        }
         showSuccess('更新成功');
       } else {
         showError(message);
@@ -203,6 +241,30 @@ const EditUser = () => {
                   placeholder='请输入配额'
                   autoComplete='new-password'
                 />
+              </div>
+            </div>
+          )}
+
+          {userId && userIsAdmin && (
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <div className='space-y-2'>
+                <Label>{t('user.edit.plan')}</Label>
+                <Select
+                  value={String(inputs.plan_id || 0)}
+                  onValueChange={(v) => handleInputChange('plan_id', parseInt(v))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('user.edit.plan_placeholder')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='0'>{t('user.edit.no_plan')}</SelectItem>
+                    {planOptions.map((p) => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.display_name || p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}

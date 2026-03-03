@@ -356,6 +356,10 @@
       "wechat_id_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
       "email": "Linked Email Account",
       "email_placeholder": "Read-only, user must link through personal settings page, cannot be modified directly",
+      "plan": "Plan",
+      "plan_placeholder": "Select plan",
+      "no_plan": "No subscription",
+      "plan_updated": "Plan updated successfully",
       "buttons": {
         "submit": "Submit",
         "cancel": "Cancel"
@@ -363,6 +367,9 @@
     },
     "add": {
       "title": "Create New User Account"
+    },
+    "create": {
+      "plan": "Assign Plan"
     },
     "messages": {
       "update_success": "User information updated successfully!",
@@ -398,7 +405,8 @@
         "by_used_quota": "Sort by Used Quota",
         "by_request_count": "Sort by Request Count"
       },
-      "sort_by": "Sort By"
+      "sort_by": "Sort By",
+      "plan": "Plan"
     },
     "buttons": {
       "add": "Add New User",
@@ -1206,6 +1214,7 @@
       "overage_blocked": "Service paused after limit",
       "monthly_limit": "Monthly spend cap ¥{{amount}}",
       "no_monthly_limit": "No monthly spend cap",
+      "weekly_limit": "Weekly limit {{count}} requests",
       "current": "Current Plan",
       "upgrade": "Upgrade",
       "downgrade": "Downgrade",
@@ -1249,6 +1258,7 @@
       "redemption": "Redemption Management",
       "logs": "Logs",
       "system_settings": "System Settings",
+      "plan_management": "Plan Management",
       "current_plan": "Current Plan",
       "free_plan": "Free",
       "loading": "Loading...",
@@ -1395,7 +1405,8 @@
       "monthly_cap": "Monthly Spend Cap",
       "configurable": "Configurable",
       "booster": "Booster Pack Support",
-      "priority_support": "Priority Support"
+      "priority_support": "Priority Support",
+      "weekly_limit": "Weekly Limit"
     },
     "faq": {
       "title": "FAQ",
@@ -1604,22 +1615,27 @@
       "col_price": "Monthly Fee",
       "col_window_limit": "5h Window Limit",
       "col_models": "Available Models",
+      "col_weekly_limit": "Weekly Limit",
       "col_overage": "Overage Policy",
       "plan_lite_price": "Free",
       "plan_lite_window": "10 requests",
       "plan_lite_models": "Basic models",
+      "plan_lite_weekly": "200",
       "plan_lite_overage": "Service paused",
       "plan_pro_price": "¥140",
       "plan_pro_window": "45 requests",
       "plan_pro_models": "All models",
+      "plan_pro_weekly": "1,000",
       "plan_pro_overage": "Billed at API rates",
       "plan_max5x_price": "¥700",
       "plan_max5x_window": "225 requests",
       "plan_max5x_models": "All + advanced models",
+      "plan_max5x_weekly": "5,000",
       "plan_max5x_overage": "Billed at API rates",
       "plan_max20x_price": "¥1,400",
       "plan_max20x_window": "900 requests",
       "plan_max20x_models": "All + advanced + dedicated",
+      "plan_max20x_weekly": "20,000",
       "plan_max20x_overage": "Billed at API rates",
       "plans_compare_hint": "For a full feature comparison and plan details, visit the",
       "plans_compare_link": "pricing page",
@@ -1800,6 +1816,38 @@
       "delete_confirm": "Are you sure you want to delete user {{username}}? This action cannot be undone.",
       "cancel": "Cancel",
       "confirm_delete": "Confirm Delete"
+    },
+    "plan": {
+      "title": "Plan Management",
+      "description": "Manage all subscription plans including pricing, window limits, and overage policies.",
+      "create": "Create Plan",
+      "edit": "Edit Plan",
+      "delete": "Delete Plan",
+      "delete_confirm": "Are you sure you want to delete the plan \"{{name}}\"?",
+      "delete_has_users": "This plan has active users. Please migrate users before deleting.",
+      "col_name": "Name",
+      "col_display_name": "Display Name",
+      "col_price": "Monthly Price",
+      "col_window_limit": "5h Window Limit",
+      "col_window_duration": "Window Duration",
+      "col_weekly_limit": "Weekly Limit",
+      "col_overage": "Overage Policy",
+      "col_status": "Status",
+      "col_priority": "Priority",
+      "col_monthly_cap": "Monthly Spend Cap",
+      "col_actions": "Actions",
+      "status_enabled": "Enabled",
+      "status_disabled": "Disabled",
+      "overage_api": "Billed at API rates",
+      "overage_blocked": "Service paused",
+      "save": "Save",
+      "cancel": "Cancel",
+      "save_success": "Plan saved successfully",
+      "delete_success": "Plan deleted successfully",
+      "load_error": "Failed to load plans",
+      "unit_yuan": "CNY/mo",
+      "unit_hours": "hours",
+      "unit_requests": "requests"
     }
   },
   "terms": {

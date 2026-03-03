@@ -213,6 +213,9 @@ const UsersTable = () => {
             >
               {t('user.table.group')}
             </Table.HeaderCell>
+            <Table.HeaderCell>
+              {t('user.table.plan')}
+            </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -264,6 +267,7 @@ const UsersTable = () => {
                     />
                   </Table.Cell>
                   <Table.Cell>{renderGroup(user.group)}</Table.Cell>
+                  <Table.Cell>{user.plan_name || t('user.edit.no_plan')}</Table.Cell>
                   {/*<Table.Cell>*/}
                   {/*  {user.email ? <Popup hoverable content={user.email} trigger={<span>{renderText(user.email, 24)}</span>} /> : '无'}*/}
                   {/*</Table.Cell>*/}
@@ -366,7 +370,7 @@ const UsersTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='7'>
+            <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/user/add' loading={loading}>
                 {t('user.buttons.add')}
               </Button>
