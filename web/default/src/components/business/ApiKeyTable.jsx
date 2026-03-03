@@ -235,7 +235,7 @@ const ApiKeyTable = ({ isAdmin = false }) => {
         break;
       case 'claude-code':
         url = JSON.stringify({
-          name: 'CodingPlan',
+          name: 'Alaya Code',
           baseUrl: `${serverAddress}/anthropic/v1`,
           apiKey: `sk-${key}`,
         }, null, 2);

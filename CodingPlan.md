@@ -230,7 +230,7 @@
 配置到第三方工具（Cursor/Claude Code/VSCode）
        │
        ▼
-工具发起请求 ──▶ Codingplan API ──▶ 模型服务
+工具发起请求 ──▶ Alaya Code API ──▶ 模型服务
        │
        ▼
 返回结果给工具

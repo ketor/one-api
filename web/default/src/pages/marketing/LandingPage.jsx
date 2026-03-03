@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const typewriterLines = [
-  '$ export OPENAI_API_BASE=https://api.codingplan.com/v1',
+  '$ export OPENAI_API_BASE=https://api.alayanew.com/v1',
   '$ export OPENAI_API_KEY=sk-xxxxxxxx',
   '$ curl $OPENAI_API_BASE/chat/completions \\',
   '    -H "Authorization: Bearer $OPENAI_API_KEY" \\',
@@ -103,7 +103,7 @@ const models = [
 const tools = [
   {
     name: 'Cursor',
-    description: 'AI 代码编辑器，直接对接 CodingPlan API',
+    description: 'AI 代码编辑器，直接对接 Alaya Code API',
     config: 'Settings > Models > OpenAI API Base',
   },
   {
@@ -141,7 +141,7 @@ const LandingPage = () => {
                 <span className='text-primary'>AI Coding 助手平台</span>
               </h1>
               <p className='max-w-lg text-lg text-muted-foreground'>
-                CodingPlan 聚合 Kimi、通义千问、智谱 GLM 等国产大模型，提供 OpenAI 兼容接口。
+                Alaya Code 聚合 Kimi、通义千问、智谱 GLM 等国产大模型，提供 OpenAI 兼容接口。
                 无需切换 SDK，一行配置即可接入 Cursor、Claude Code 等 AI 工具链。
               </p>
               <div className='flex flex-wrap gap-3'>
@@ -348,7 +348,7 @@ const LandingPage = () => {
         <div className='container mx-auto max-w-screen-xl px-4'>
           <div className='mx-auto mb-12 max-w-2xl text-center'>
             <h2 className='text-3xl font-bold tracking-tight'>
-              为什么选择 CodingPlan
+              为什么选择 Alaya Code
             </h2>
           </div>
           <div className='grid gap-8 md:grid-cols-3'>

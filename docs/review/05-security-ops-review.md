@@ -1,6 +1,6 @@
 # 安全与运维评审报告
 
-**项目**: One-API / CodingPlan
+**项目**: One-API / Alaya Code
 **评审人**: security-reviewer
 **日期**: 2026-03-04
 **范围**: 安全漏洞、认证安全、API 安全、依赖安全、Docker 安全、运维就绪性

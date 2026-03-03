@@ -23,7 +23,7 @@ OPENAI_BASE_URL=${baseUrl}/v1`,
       language: 'json',
       code: `// cc-switch 配置
 {
-  "name": "CodingPlan",
+  "name": "Alaya Code",
   "baseUrl": "${baseUrl}/anthropic/v1",
   "apiKey": "${displayKey}"
 }`,

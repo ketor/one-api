@@ -118,7 +118,7 @@ const ConsoleSidebar = () => {
     <aside className='hidden md:flex md:w-64 md:flex-col md:border-r bg-sidebar-background'>
       <div className='flex h-14 items-center border-b px-4'>
         <Link to='/' className='flex items-center gap-2 font-semibold'>
-          <span>CodingPlan</span>
+          <span>Alaya Code</span>
         </Link>
       </div>
       <div className='flex-1 overflow-y-auto p-4'>

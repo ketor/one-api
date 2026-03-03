@@ -723,7 +723,7 @@
         }
       },
       "copyright": {
-        "notice": "CodingPlan is powered by 九章云极 DataCanvas, Alaya NeW AI Computing Platform."
+        "notice": "Alaya Code is powered by 九章云极 DataCanvas, Alaya NeW AI Computing Platform."
       }
     }
   },
@@ -735,8 +735,8 @@
   },
   "home": {
     "welcome": {
-      "title": "Welcome to CodingPlan",
-      "description": "CodingPlan is an AI coding assistant platform by Alaya NeW, aggregating top LLMs with OpenAI-compatible APIs for seamless integration with Cursor, Claude Code and more.",
+      "title": "Welcome to Alaya Code",
+      "description": "Alaya Code is an AI coding assistant platform by Alaya NeW, aggregating top LLMs with OpenAI-compatible APIs for seamless integration with Cursor, Claude Code and more.",
       "login_notice": "To use the service, please login or register first."
     },
     "system_status": {
@@ -806,7 +806,7 @@
   },
   "about": {
     "title": "About",
-    "description": "CodingPlan is an AI coding assistant subscription platform by Alaya NeW (九章云极 DataCanvas), providing LLM inference APIs, subscription management, and usage analytics.",
+    "description": "Alaya Code is an AI coding assistant subscription platform by Alaya NeW (九章云极 DataCanvas), providing LLM inference APIs, subscription management, and usage analytics.",
     "repository": "Website: ",
     "loading_failed": "Loading failed"
   },

@@ -6,7 +6,7 @@ const AuthLayout = () => {
     <div className='flex min-h-screen flex-col items-center justify-center bg-muted/40 px-4'>
       <div className='mb-8'>
         <Link to='/' className='flex items-center space-x-2'>
-          <span className='text-2xl font-bold'>CodingPlan</span>
+          <span className='text-2xl font-bold'>Alaya Code</span>
         </Link>
       </div>
       <div className='w-full max-w-md'>

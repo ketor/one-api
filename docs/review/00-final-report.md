@@ -1,4 +1,4 @@
-# One-API / CodingPlan 全面评审与重构 - 最终报告
+# One-API / Alaya Code 全面评审与重构 - 最终报告
 
 **日期**: 2026-03-04
 **团队**: full-review (5 位专项评审员 + team lead)

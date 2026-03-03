@@ -59,7 +59,7 @@ const faqCategories = [
       },
       {
         q: '接口和 OpenAI 完全兼容吗？',
-        a: '是的，CodingPlan 100% 兼容 OpenAI API 格式，包括 Chat Completions、Embeddings、Models 等接口。你可以直接使用 OpenAI 官方 SDK，只需修改 base_url。',
+        a: '是的，Alaya Code 100% 兼容 OpenAI API 格式，包括 Chat Completions、Embeddings、Models 等接口。你可以直接使用 OpenAI 官方 SDK，只需修改 base_url。',
       },
       {
         q: '支持流式输出吗？',
@@ -96,7 +96,7 @@ const DocsFaq = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>常见问题</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          关于 CodingPlan 的常见问题和解答。
+          关于 Alaya Code 的常见问题和解答。
         </p>
       </div>
 

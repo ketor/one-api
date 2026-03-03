@@ -24,7 +24,7 @@ const ApiKeyCopyButton = ({ tokenKey }) => {
     {
       label: 'Claude Code (cc-switch)',
       getValue: () => JSON.stringify({
-        name: 'CodingPlan',
+        name: 'Alaya Code',
         baseUrl: `${baseUrl}/anthropic/v1`,
         apiKey: tokenKey,
       }, null, 2),

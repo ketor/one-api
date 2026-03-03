@@ -9,7 +9,7 @@ const DocsApi = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>API 文档</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          CodingPlan 提供 OpenAI 兼容接口和 Anthropic 兼容接口，支持主流 AI 应用无缝接入。
+          Alaya Code 提供 OpenAI 兼容接口和 Anthropic 兼容接口，支持主流 AI 应用无缝接入。
         </p>
       </div>
 
@@ -17,7 +17,7 @@ const DocsApi = () => {
       <div className='space-y-3'>
         <h2 className='text-2xl font-semibold'>Base URL</h2>
         <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-          <code>https://api.codingplan.com</code>
+          <code>https://api.alayanew.com</code>
         </pre>
       </div>
 
@@ -61,7 +61,7 @@ const DocsApi = () => {
               </p>
               <h4 className='text-sm font-semibold'>请求示例</h4>
               <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                <code>{`curl https://api.codingplan.com/v1/chat/completions \\
+                <code>{`curl https://api.alayanew.com/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer sk-xxx" \\
   -d '{
@@ -149,7 +149,7 @@ const DocsApi = () => {
                 创建文本向量嵌入。
               </p>
               <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                <code>{`curl https://api.codingplan.com/v1/embeddings \\
+                <code>{`curl https://api.alayanew.com/v1/embeddings \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer sk-xxx" \\
   -d '{
@@ -169,7 +169,7 @@ const DocsApi = () => {
                 列出当前可用的模型列表。
               </p>
               <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                <code>{`curl https://api.codingplan.com/v1/models \\
+                <code>{`curl https://api.alayanew.com/v1/models \\
   -H "Authorization: Bearer sk-xxx"`}</code>
               </pre>
             </div>
@@ -185,7 +185,7 @@ const DocsApi = () => {
                 Anthropic Messages API 兼容接口。适用于 Claude Code 等使用 Anthropic SDK 的工具。
               </p>
               <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                <code>{`curl https://api.codingplan.com/anthropic/v1/messages \\
+                <code>{`curl https://api.alayanew.com/anthropic/v1/messages \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: sk-xxx" \\
   -H "anthropic-version: 2023-06-01" \\

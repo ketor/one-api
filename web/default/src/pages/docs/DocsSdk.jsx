@@ -7,7 +7,7 @@ const DocsSdk = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>SDK 接入指南</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          CodingPlan 兼容 OpenAI SDK，你可以使用 Python 或 Node.js 官方 SDK 直接接入。
+          Alaya Code 兼容 OpenAI SDK，你可以使用 Python 或 Node.js 官方 SDK 直接接入。
         </p>
       </div>
 
@@ -32,7 +32,7 @@ const DocsSdk = () => {
 
 client = OpenAI(
     api_key="sk-your-api-key",
-    base_url="https://api.codingplan.com/v1"
+    base_url="https://api.alayanew.com/v1"
 )
 
 # 非流式调用
@@ -84,7 +84,7 @@ print(f"维度: {len(embedding)}")`}</code>
             <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
               <code>{`# .env 文件
 OPENAI_API_KEY=sk-your-api-key
-OPENAI_API_BASE=https://api.codingplan.com/v1`}</code>
+OPENAI_API_BASE=https://api.alayanew.com/v1`}</code>
             </pre>
             <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
               <code>{`import os
@@ -117,7 +117,7 @@ print(response.choices[0].message.content)`}</code>
 
 const client = new OpenAI({
   apiKey: 'sk-your-api-key',
-  baseURL: 'https://api.codingplan.com/v1',
+  baseURL: 'https://api.alayanew.com/v1',
 });
 
 async function main() {
@@ -160,7 +160,7 @@ for await (const chunk of stream) {
             <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
               <code>{`# .env 文件
 OPENAI_API_KEY=sk-your-api-key
-OPENAI_BASE_URL=https://api.codingplan.com/v1`}</code>
+OPENAI_BASE_URL=https://api.alayanew.com/v1`}</code>
             </pre>
             <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
               <code>{`// SDK 会自动读取 OPENAI_API_KEY 环境变量

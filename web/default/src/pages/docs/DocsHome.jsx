@@ -13,7 +13,7 @@ const quickLinks = [
   {
     icon: BookOpen,
     title: 'API 概述',
-    description: '了解 CodingPlan API 的基本概念和请求格式',
+    description: '了解 Alaya Code API 的基本概念和请求格式',
     to: '/docs/api-overview',
   },
   {
@@ -54,7 +54,7 @@ const DocsHome = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>快速开始</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          几分钟内开始使用 CodingPlan API 调用国产大模型。
+          几分钟内开始使用 Alaya Code API 调用国产大模型。
         </p>
       </div>
 
@@ -91,11 +91,11 @@ const DocsHome = () => {
               配置 API 地址
             </h3>
             <p className='mt-2 text-sm text-muted-foreground'>
-              将 API Base URL 设置为 CodingPlan 的接口地址：
+              将 API Base URL 设置为 Alaya Code 的接口地址：
             </p>
             <pre className='mt-2 overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
               <code>{`# 设置环境变量
-export OPENAI_API_BASE=https://api.codingplan.com/v1
+export OPENAI_API_BASE=https://api.alayanew.com/v1
 export OPENAI_API_KEY=sk-your-api-key-here`}</code>
             </pre>
           </div>
@@ -111,7 +111,7 @@ export OPENAI_API_KEY=sk-your-api-key-here`}</code>
               使用 curl 或你喜欢的编程语言发送请求：
             </p>
             <pre className='mt-2 overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-              <code>{`curl https://api.codingplan.com/v1/chat/completions \\
+              <code>{`curl https://api.alayanew.com/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer sk-your-api-key-here" \\
   -d '{

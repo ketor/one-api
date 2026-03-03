@@ -719,13 +719,13 @@
         }
       },
       "copyright": {
-        "notice": "CodingPlan 由九章云极 DataCanvas 提供技术支持，Alaya NeW 智算算力服务平台。"
+        "notice": "Alaya Code 由九章云极 DataCanvas 提供技术支持，Alaya NeW 智算算力服务平台。"
       }
     }
   },
   "about": {
     "title": "关于",
-    "description": "CodingPlan 是 Alaya NeW 旗下的AI编程助手订阅服务平台，由九章云极 DataCanvas 提供，支持大模型推理API、订阅管理、用量统计等服务。",
+    "description": "Alaya Code 是 Alaya NeW 旗下的AI编程助手订阅服务平台，由九章云极 DataCanvas 提供，支持大模型推理API、订阅管理、用量统计等服务。",
     "repository": "官网：",
     "loading_failed": "加载失败"
   },
@@ -737,8 +737,8 @@
   },
   "home": {
     "welcome": {
-      "title": "欢迎使用 CodingPlan",
-      "description": "CodingPlan 是 Alaya NeW 旗下的AI编程助手平台，聚合国产大模型，提供 OpenAI 兼容API接口，支持 Cursor、Claude Code 等主流AI工具无缝接入。",
+      "title": "欢迎使用 Alaya Code",
+      "description": "Alaya Code 是 Alaya NeW 旗下的AI编程助手平台，聚合国产大模型，提供 OpenAI 兼容API接口，支持 Cursor、Claude Code 等主流AI工具无缝接入。",
       "login_notice": "如需使用，请先登录或注册。"
     },
     "system_status": {

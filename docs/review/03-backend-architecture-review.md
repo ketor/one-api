@@ -1,6 +1,6 @@
 # 后端架构评审报告
 
-**项目**: One-API / CodingPlan
+**项目**: One-API / Alaya Code
 **评审人**: backend-reviewer
 **日期**: 2026-03-04
 **范围**: Go 后端全量代码（controller/, model/, router/, middleware/, relay/, common/）

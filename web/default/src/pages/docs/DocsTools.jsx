@@ -14,7 +14,7 @@ const DocsTools = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>工具对接教程</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          CodingPlan 兼容 OpenAI API，可直接对接主流 AI 编程工具。以下是各工具的配置方法。
+          Alaya Code 兼容 OpenAI API，可直接对接主流 AI 编程工具。以下是各工具的配置方法。
         </p>
       </div>
 
@@ -55,12 +55,12 @@ const DocsTools = () => {
                     <code className='rounded bg-muted px-1'>kimi-2.5</code>
                   </li>
                   <li>
-                    <strong>API Key:</strong> 你的 CodingPlan API Key
+                    <strong>API Key:</strong> 你的 Alaya Code API Key
                   </li>
                   <li>
                     <strong>API Base URL:</strong>{' '}
                     <code className='rounded bg-muted px-1'>
-                      https://api.codingplan.com/v1
+                      https://api.alayanew.com/v1
                     </code>
                   </li>
                 </ul>
@@ -102,7 +102,7 @@ const DocsTools = () => {
                 </p>
                 <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
                   <code>{`# ~/.bashrc 或 ~/.zshrc
-export ANTHROPIC_BASE_URL=https://api.codingplan.com/anthropic
+export ANTHROPIC_BASE_URL=https://api.alayanew.com/anthropic
 export ANTHROPIC_API_KEY=sk-your-api-key`}</code>
                 </pre>
               </div>
@@ -110,7 +110,7 @@ export ANTHROPIC_API_KEY=sk-your-api-key`}</code>
               <div className='space-y-2'>
                 <h3 className='font-semibold'>方法 2：直接指定</h3>
                 <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                  <code>{`ANTHROPIC_BASE_URL=https://api.codingplan.com/anthropic \\
+                  <code>{`ANTHROPIC_BASE_URL=https://api.alayanew.com/anthropic \\
 ANTHROPIC_API_KEY=sk-your-api-key \\
 claude`}</code>
                 </pre>
@@ -130,7 +130,7 @@ claude
               <div className='rounded-md bg-muted/50 p-3'>
                 <p className='text-sm'>
                   <strong>注意：</strong>Claude Code 使用 Anthropic API 格式（x-api-key），
-                  CodingPlan 已完全兼容此格式。
+                  Alaya Code 已完全兼容此格式。
                 </p>
               </div>
             </CardContent>
@@ -167,11 +167,11 @@ claude
                   <li>
                     <strong>API Base URL:</strong>{' '}
                     <code className='rounded bg-muted px-1'>
-                      https://api.codingplan.com/v1
+                      https://api.alayanew.com/v1
                     </code>
                   </li>
                   <li>
-                    <strong>API Key:</strong> 你的 CodingPlan API Key
+                    <strong>API Key:</strong> 你的 Alaya Code API Key
                   </li>
                   <li>
                     <strong>Model ID:</strong>{' '}
@@ -208,16 +208,16 @@ claude
                 <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
                   <code>{`# ~/.opencode/config.yaml
 providers:
-  codingplan:
+  alayacode:
     type: openai
-    base_url: https://api.codingplan.com/v1
+    base_url: https://api.alayanew.com/v1
     api_key: sk-your-api-key
     models:
       - kimi-2.5
       - qwen-3.5
       - glm-5
 
-default_provider: codingplan
+default_provider: alayacode
 default_model: kimi-2.5`}</code>
                 </pre>
               </div>
@@ -225,7 +225,7 @@ default_model: kimi-2.5`}</code>
               <div className='space-y-2'>
                 <h3 className='font-semibold'>环境变量方式</h3>
                 <pre className='overflow-x-auto rounded-md bg-zinc-950 p-3 text-sm text-zinc-100'>
-                  <code>{`export OPENAI_API_BASE=https://api.codingplan.com/v1
+                  <code>{`export OPENAI_API_BASE=https://api.alayanew.com/v1
 export OPENAI_API_KEY=sk-your-api-key
 opencode`}</code>
                 </pre>
@@ -241,14 +241,14 @@ opencode`}</code>
         <div className='space-y-2 rounded-lg border p-4'>
           <ul className='ml-4 list-disc space-y-2 text-sm text-muted-foreground'>
             <li>
-              所有支持 OpenAI API 的工具都可以通过修改 Base URL 来对接 CodingPlan。
+              所有支持 OpenAI API 的工具都可以通过修改 Base URL 来对接 Alaya Code。
             </li>
             <li>
               如果工具只支持 <code className='rounded bg-muted px-1'>OPENAI_API_KEY</code>{' '}
-              环境变量，直接将 CodingPlan 的 Key 设为该环境变量即可。
+              环境变量，直接将 Alaya Code 的 Key 设为该环境变量即可。
             </li>
             <li>
-              某些工具可能需要手动指定模型名称。请确保使用 CodingPlan 支持的模型 ID。
+              某些工具可能需要手动指定模型名称。请确保使用 Alaya Code 支持的模型 ID。
             </li>
             <li>
               如果遇到连接问题，请检查 API Base URL 是否以{' '}

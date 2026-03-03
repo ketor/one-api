@@ -42,7 +42,7 @@ const ConsoleTopBar = () => {
         <SheetContent side='left' className='flex flex-col'>
           <nav className='grid gap-2 text-lg font-medium'>
             <Link to='/' className='flex items-center gap-2 text-lg font-semibold mb-4'>
-              <span>CodingPlan</span>
+              <span>Alaya Code</span>
             </Link>
             <SidebarNav />
           </nav>

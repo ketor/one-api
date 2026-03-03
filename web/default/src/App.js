@@ -116,7 +116,7 @@ function App() {
 
     // Set page title and favicon
     const systemName = getSystemName();
-    document.title = systemName || 'CodingPlan - Alaya NeW';
+    document.title = systemName || 'Alaya Code - Alaya NeW';
     const logo = getLogo();
     if (logo) {
       const linkElement = document.querySelector("link[rel~='icon']");

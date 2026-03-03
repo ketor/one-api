@@ -24,7 +24,7 @@ export function isRoot() {
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
-  if (!system_name) return 'CodingPlan';
+  if (!system_name) return 'Alaya Code';
   return system_name;
 }
 

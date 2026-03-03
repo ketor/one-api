@@ -81,7 +81,7 @@ const DocsErrors = () => {
       <div>
         <h1 className='text-3xl font-bold tracking-tight'>错误处理</h1>
         <p className='mt-2 text-lg text-muted-foreground'>
-          了解 CodingPlan API 的错误码和推荐的处理方式。
+          了解 Alaya Code API 的错误码和推荐的处理方式。
         </p>
       </div>
 
@@ -218,7 +218,7 @@ const DocsErrors = () => {
             </li>
             <li>
               <strong>检查 Base URL：</strong>确保 URL 为{' '}
-              <code className='rounded bg-muted px-1'>https://api.codingplan.com/v1</code>
+              <code className='rounded bg-muted px-1'>https://api.alayanew.com/v1</code>
               （注意末尾的 /v1）。
             </li>
             <li>
