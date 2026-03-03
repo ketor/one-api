@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -17,11 +17,6 @@ const AuthLayout = () => {
           <Globe className='h-4 w-4' />
           <span className='text-xs'>{i18n.language === 'zh' ? 'EN' : '中文'}</span>
         </Button>
-      </div>
-      <div className='mb-8'>
-        <Link to='/' className='flex items-center space-x-2'>
-          <img src='/logo.svg' alt='Alaya Code' className='h-10' />
-        </Link>
       </div>
       <div className='w-full max-w-md'>
         <div className='rounded-xl border bg-card p-6 shadow-sm'>

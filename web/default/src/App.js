@@ -15,6 +15,8 @@ import AuthLayout from './components/layout/AuthLayout';
 // Lazy-loaded pages - Marketing
 const LandingPage = lazy(() => import('./pages/marketing/LandingPage'));
 const PricingPage = lazy(() => import('./pages/marketing/PricingPage'));
+const TermsPage = lazy(() => import('./pages/marketing/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/marketing/PrivacyPage'));
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 
@@ -133,6 +135,8 @@ function App() {
         <Route element={<MarketingLayout />}>
           <Route path='/' element={<LandingPage />} />
           <Route path='/pricing' element={<PricingPage />} />
+          <Route path='/terms' element={<TermsPage />} />
+          <Route path='/privacy' element={<PrivacyPage />} />
           <Route path='/home' element={<Home />} />
           <Route path='/about' element={<About />} />
         </Route>
