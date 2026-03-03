@@ -1,16 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimmer, Loader, Segment } from 'semantic-ui-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API, showError, showSuccess } from '../helpers';
 import { UserContext } from '../context/User';
 
 const GitHubOAuth = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [userState, userDispatch] = useContext(UserContext);
+  const [searchParams] = useSearchParams();
+  const [, userDispatch] = useContext(UserContext);
   const [prompt, setPrompt] = useState('处理中...');
-  const [processing, setProcessing] = useState(true);
-
   let navigate = useNavigate();
 
   const sendCode = async (code, state, count) => {
@@ -30,7 +26,7 @@ const GitHubOAuth = () => {
       showError(message);
       if (count === 0) {
         setPrompt(`操作失败，重定向至登录界面中...`);
-        navigate('/setting'); // in case this is failed to bind GitHub
+        navigate('/setting');
         return;
       }
       count++;
@@ -47,11 +43,12 @@ const GitHubOAuth = () => {
   }, []);
 
   return (
-    <Segment style={{ minHeight: '300px' }}>
-      <Dimmer active inverted>
-        <Loader size='large'>{prompt}</Loader>
-      </Dimmer>
-    </Segment>
+    <div className='flex items-center justify-center' style={{ minHeight: '300px' }}>
+      <div className='flex flex-col items-center gap-3'>
+        <div className='h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+        <span className='text-lg text-muted-foreground'>{prompt}</span>
+      </div>
+    </div>
   );
 };
 

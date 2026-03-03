@@ -10,7 +10,7 @@ import {
   Icon,
   Menu,
   Segment,
-} from 'semantic-ui-react';
+} from '../helpers/semantic-shim';
 import {
   API,
   getLogo,

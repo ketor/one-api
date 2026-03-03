@@ -117,5 +117,101 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			groupRoute.GET("/", controller.GetGroups)
 		}
+
+		// Plan routes (public)
+		planRoute := apiRouter.Group("/plan")
+		{
+			planRoute.GET("/", controller.GetPlans)
+			planRoute.GET("/:id", controller.GetPlan)
+		}
+
+		// Booster pack routes (public listing)
+		boosterRoute := apiRouter.Group("/booster")
+		{
+			boosterRoute.GET("/", controller.GetBoosterPacks)
+
+			// User-authenticated booster routes
+			boosterUserRoute := boosterRoute.Group("/")
+			boosterUserRoute.Use(middleware.UserAuth())
+			{
+				boosterUserRoute.POST("/purchase", controller.PurchaseBoosterPack)
+				boosterUserRoute.GET("/self", controller.GetSelfBoosterPacks)
+			}
+		}
+
+		// Subscription routes (user-authenticated)
+		subscriptionRoute := apiRouter.Group("/subscription")
+		subscriptionRoute.Use(middleware.UserAuth())
+		{
+			subscriptionRoute.GET("/self", controller.GetSelfSubscription)
+			subscriptionRoute.POST("/", controller.CreateSubscription)
+			subscriptionRoute.PUT("/upgrade", controller.UpgradeSubscription)
+			subscriptionRoute.PUT("/downgrade", controller.DowngradeSubscription)
+			subscriptionRoute.POST("/cancel", controller.CancelSubscription)
+			subscriptionRoute.POST("/renew", controller.RenewSubscription)
+			subscriptionRoute.GET("/quota", controller.GetWindowQuota)
+		}
+
+		// Order routes (user-authenticated)
+		orderRoute := apiRouter.Group("/order")
+		orderRoute.Use(middleware.UserAuth())
+		{
+			orderRoute.GET("/self", controller.GetSelfOrders)
+			orderRoute.GET("/self/:id", controller.GetSelfOrder)
+		}
+
+		// Usage routes (user-authenticated)
+		usageRoute := apiRouter.Group("/usage")
+		usageRoute.Use(middleware.UserAuth())
+		{
+			usageRoute.GET("/window", controller.GetWindowUsage)
+			usageRoute.GET("/monthly", controller.GetMonthlyUsage)
+			usageRoute.GET("/history", controller.GetUsageHistory)
+		}
+
+		// Admin routes for subscription management
+		adminSubRoute := apiRouter.Group("/admin/subscription")
+		adminSubRoute.Use(middleware.AdminAuth())
+		{
+			adminSubRoute.GET("/", controller.GetAllSubscriptions)
+			adminSubRoute.PUT("/:id", controller.AdminUpdateSubscription)
+		}
+
+		// Admin routes for order management
+		adminOrderRoute := apiRouter.Group("/admin/order")
+		adminOrderRoute.Use(middleware.AdminAuth())
+		{
+			adminOrderRoute.GET("/", controller.GetAllOrders)
+			adminOrderRoute.GET("/:id", controller.GetOrder)
+		}
+
+		// Admin routes for plan management
+		adminPlanRoute := apiRouter.Group("/admin/plan")
+		adminPlanRoute.Use(middleware.AdminAuth())
+		{
+			adminPlanRoute.GET("/", controller.GetAllAdminPlans)
+			adminPlanRoute.POST("/", controller.CreatePlan)
+			adminPlanRoute.PUT("/", controller.UpdatePlan)
+			adminPlanRoute.DELETE("/:id", controller.DeletePlan)
+		}
+
+		// Admin routes for booster pack management
+		adminBoosterRoute := apiRouter.Group("/admin/booster")
+		adminBoosterRoute.Use(middleware.AdminAuth())
+		{
+			adminBoosterRoute.GET("/", controller.GetAllAdminBoosterPacks)
+			adminBoosterRoute.POST("/", controller.CreateBoosterPack)
+			adminBoosterRoute.PUT("/", controller.UpdateBoosterPack)
+			adminBoosterRoute.DELETE("/:id", controller.DeleteBoosterPack)
+		}
+
+		// Admin routes for usage analytics
+		adminUsageRoute := apiRouter.Group("/admin/usage")
+		adminUsageRoute.Use(middleware.AdminAuth())
+		{
+			adminUsageRoute.GET("/overview", controller.GetPlatformUsageOverview)
+			adminUsageRoute.GET("/by-model", controller.GetUsageByModel)
+			adminUsageRoute.GET("/top-users", controller.GetTopUsers)
+		}
 	}
 }

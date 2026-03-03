@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table,} from 'semantic-ui-react';
+import {Button, Dropdown, Form, Input, Label, Message, Pagination, Popup, Table,} from '../helpers/semantic-shim';
 import {Link} from 'react-router-dom';
 import {
   API,

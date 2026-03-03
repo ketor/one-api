@@ -6,8 +6,7 @@ import {
   Header,
   Card,
   Statistic,
-  Divider,
-} from 'semantic-ui-react';
+} from '../../helpers/semantic-shim';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
 import { useTranslation } from 'react-i18next';

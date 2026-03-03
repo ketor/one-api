@@ -25,7 +25,42 @@ import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
 import LarkOAuth from './components/LarkOAuth';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard'; // eslint-disable-line no-unused-vars
+
+// Layout components
+import MarketingLayout from './components/layout/MarketingLayout';
+import ConsoleLayout from './components/layout/ConsoleLayout';
+// AdminLayout removed - all admin routes now use ConsoleLayout
+import DocsLayout from './components/layout/DocsLayout';
+import AuthLayout from './components/layout/AuthLayout';
+
+// Real console pages
+import DashboardPage from './pages/console/DashboardPage';
+import KeysPage from './pages/console/KeysPage';
+import SubscriptionPage from './pages/console/SubscriptionPage';
+import UsagePage from './pages/console/UsagePage';
+import BillingPage from './pages/console/BillingPage';
+import BoosterPage from './pages/console/BoosterPage';
+import SettingsPage from './pages/console/SettingsPage';
+
+// Real admin pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminKeysAudit from './pages/admin/AdminKeysAudit';
+import AdminUsageMonitor from './pages/admin/AdminUsageMonitor';
+
+// Marketing pages
+import LandingPage from './pages/marketing/LandingPage';
+import PricingPage from './pages/marketing/PricingPage';
+
+// Docs pages
+import DocsHome from './pages/docs/DocsHome';
+import DocsApi from './pages/docs/DocsApi';
+import DocsSdk from './pages/docs/DocsSdk';
+import DocsTools from './pages/docs/DocsTools';
+import DocsErrors from './pages/docs/DocsErrors';
+import DocsFaq from './pages/docs/DocsFaq';
+
+// Admin pages reusing existing components (replacing placeholders)
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -44,9 +79,8 @@ function App() {
   const loadStatus = async () => {
     try {
       const res = await API.get('/api/status');
-      const { success, message, data } = res.data || {}; // Add default empty object
+      const { success, message, data } = res.data || {};
       if (success && data) {
-        // Check data exists
         localStorage.setItem('status', JSON.stringify(data));
         statusDispatch({ type: 'set', payload: data });
         localStorage.setItem('system_name', data.system_name);
@@ -94,154 +128,195 @@ function App() {
 
   return (
     <Routes>
+      {/* Marketing pages */}
+      <Route element={<MarketingLayout />}>
+        <Route path='/' element={<LandingPage />} />
+        <Route path='/pricing' element={<PricingPage />} />
+        <Route
+          path='/home'
+          element={
+            <Suspense fallback={<Loading />}>
+              <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/about'
+          element={
+            <Suspense fallback={<Loading />}>
+              <About />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* Documentation */}
+      <Route element={<DocsLayout />}>
+        <Route path='/docs' element={<DocsHome />} />
+        <Route path='/docs/api' element={<DocsApi />} />
+        <Route path='/docs/sdk' element={<DocsSdk />} />
+        <Route path='/docs/tools' element={<DocsTools />} />
+        <Route path='/docs/errors' element={<DocsErrors />} />
+        <Route path='/docs/faq' element={<DocsFaq />} />
+      </Route>
+
+      {/* Authentication */}
+      <Route element={<AuthLayout />}>
+        <Route
+          path='/login'
+          element={
+            <Suspense fallback={<Loading />}>
+              <LoginForm />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/register'
+          element={
+            <Suspense fallback={<Loading />}>
+              <RegisterForm />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/reset'
+          element={
+            <Suspense fallback={<Loading />}>
+              <PasswordResetForm />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/user/reset'
+          element={
+            <Suspense fallback={<Loading />}>
+              <PasswordResetConfirm />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* User Console + Admin - unified under ConsoleLayout */}
       <Route
-        path='/'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <Home />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/channel'
-        element={
-          <PrivateRoute>
-            <Channel />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/channel/edit/:id'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditChannel />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/channel/add'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditChannel />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/token'
-        element={
-          <PrivateRoute>
-            <Token />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/token/edit/:id'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditToken />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/token/add'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditToken />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/redemption'
-        element={
-          <PrivateRoute>
-            <Redemption />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/redemption/edit/:id'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditRedemption />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/redemption/add'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditRedemption />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/user'
         element={
           <PrivateRoute>
-            <User />
+            <ConsoleLayout />
           </PrivateRoute>
         }
-      />
-      <Route
-        path='/user/edit/:id'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditUser />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/user/edit'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <EditUser />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/user/add'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <AddUser />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/user/reset'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <PasswordResetConfirm />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/login'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <LoginForm />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/register'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <RegisterForm />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/reset'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <PasswordResetForm />
-          </Suspense>
-        }
-      />
+      >
+        {/* Console pages */}
+        <Route path='/dashboard' element={<DashboardPage />} />
+        <Route path='/keys' element={<KeysPage />} />
+        <Route path='/token' element={<Token />} />
+        <Route
+          path='/token/edit/:id'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditToken />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/token/add'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditToken />
+            </Suspense>
+          }
+        />
+        <Route path='/subscription' element={<SubscriptionPage />} />
+        <Route path='/usage' element={<UsagePage />} />
+        <Route path='/billing' element={<BillingPage />} />
+        <Route path='/booster' element={<BoosterPage />} />
+        <Route path='/topup' element={<TopUp />} />
+        <Route path='/log' element={<Log />} />
+        <Route
+          path='/chat'
+          element={
+            <Suspense fallback={<Loading />}>
+              <Chat />
+            </Suspense>
+          }
+        />
+        <Route path='/settings' element={<SettingsPage />} />
+        <Route
+          path='/setting'
+          element={
+            <Suspense fallback={<Loading />}>
+              <Setting />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/user/edit'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditUser />
+            </Suspense>
+          }
+        />
+        {/* Admin pages - now unified under ConsoleLayout */}
+        <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/admin/keys' element={<AdminKeysAudit />} />
+        <Route path='/admin/usage' element={<AdminUsageMonitor />} />
+        <Route path='/channel' element={<Channel />} />
+        <Route
+          path='/channel/edit/:id'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditChannel />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/channel/add'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditChannel />
+            </Suspense>
+          }
+        />
+        <Route path='/redemption' element={<Redemption />} />
+        <Route
+          path='/redemption/edit/:id'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditRedemption />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/redemption/add'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditRedemption />
+            </Suspense>
+          }
+        />
+        <Route path='/user' element={<User />} />
+        <Route
+          path='/user/edit/:id'
+          element={
+            <Suspense fallback={<Loading />}>
+              <EditUser />
+            </Suspense>
+          }
+        />
+        <Route
+          path='/user/add'
+          element={
+            <Suspense fallback={<Loading />}>
+              <AddUser />
+            </Suspense>
+          }
+        />
+      </Route>
+
+      {/* OAuth callbacks - no layout */}
       <Route
         path='/oauth/github'
         element={
-          <Suspense fallback={<Loading></Loading>}>
+          <Suspense fallback={<Loading />}>
             <GitHubOAuth />
           </Suspense>
         }
@@ -249,63 +324,12 @@ function App() {
       <Route
         path='/oauth/lark'
         element={
-          <Suspense fallback={<Loading></Loading>}>
+          <Suspense fallback={<Loading />}>
             <LarkOAuth />
           </Suspense>
         }
       />
-      <Route
-        path='/setting'
-        element={
-          <PrivateRoute>
-            <Suspense fallback={<Loading></Loading>}>
-              <Setting />
-            </Suspense>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/topup'
-        element={
-          <PrivateRoute>
-            <Suspense fallback={<Loading></Loading>}>
-              <TopUp />
-            </Suspense>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/log'
-        element={
-          <PrivateRoute>
-            <Log />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path='/about'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <About />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/chat'
-        element={
-          <Suspense fallback={<Loading></Loading>}>
-            <Chat />
-          </Suspense>
-        }
-      />
-      <Route
-        path='/dashboard'
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+
       <Route path='*' element={<NotFound />} />
     </Routes>
   );

@@ -8,7 +8,7 @@ import {
   Header,
   Modal,
   Message,
-} from 'semantic-ui-react';
+} from '../helpers/semantic-shim';
 import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {

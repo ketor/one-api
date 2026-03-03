@@ -21,4 +21,10 @@ const (
 	AvailableModels   = "available_models"
 	KeyRequestBody    = "key_request_body"
 	SystemPrompt      = "system_prompt"
+
+	// Subscription-related context keys
+	SubscriptionMode = "subscription_mode" // bool: whether user is in subscription mode
+	WithinWindow     = "within_window"     // bool: whether request is within the window limit
+	SubscriptionId   = "subscription_id"   // int: active subscription ID
+	PlanId           = "plan_id"           // int: active plan ID
 )

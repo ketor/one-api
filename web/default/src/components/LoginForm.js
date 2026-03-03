@@ -1,21 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  Button,
-  Divider,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Message,
-  Modal,
-  Segment,
-  Card,
-} from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess, showWarning } from '../helpers';
 import { onGitHubOAuthClicked, onLarkOAuthClicked } from './utils';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Separator } from './ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
+import { Github } from 'lucide-react';
 import larkIcon from '../images/lark.svg';
 
 const LoginForm = () => {
@@ -25,7 +24,7 @@ const LoginForm = () => {
     password: '',
     wechat_verification_code: '',
   });
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const { username, password } = inputs;
   const [userState, userDispatch] = useContext(UserContext);
@@ -97,195 +96,123 @@ const LoginForm = () => {
   }
 
   return (
-    <Grid textAlign='center' style={{ marginTop: '48px' }}>
-      <Grid.Column style={{ maxWidth: 450 }}>
-        <Card
-          fluid
-          className='chart-card'
-          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
-        >
-          <Card.Content>
-            <Card.Header>
-              <Header
-                as='h2'
-                textAlign='center'
-                style={{ marginBottom: '1.5em' }}
-              >
-                <Image src={logo} style={{ marginBottom: '10px' }} />
-                <Header.Content>{t('auth.login.title')}</Header.Content>
-              </Header>
-            </Card.Header>
-            <Form size='large'>
-              <Form.Input
-                fluid
-                icon='user'
-                iconPosition='left'
-                placeholder={t('auth.login.username')}
-                name='username'
-                value={username}
-                onChange={handleChange}
-                style={{ marginBottom: '1em' }}
-              />
-              <Form.Input
-                fluid
-                icon='lock'
-                iconPosition='left'
-                placeholder={t('auth.login.password')}
-                name='password'
-                type='password'
-                value={password}
-                onChange={handleChange}
-                style={{ marginBottom: '1.5em' }}
-              />
+    <div className='space-y-6'>
+      <div className='flex flex-col items-center space-y-2'>
+        {logo && <img src={logo} alt='logo' className='h-10' />}
+        <h2 className='text-2xl font-semibold tracking-tight'>
+          {t('auth.login.title')}
+        </h2>
+      </div>
+      <form className='space-y-4' onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+        <div className='space-y-2'>
+          <Input
+            placeholder={t('auth.login.username')}
+            name='username'
+            value={username}
+            onChange={handleChange}
+          />
+        </div>
+        <div className='space-y-2'>
+          <Input
+            placeholder={t('auth.login.password')}
+            name='password'
+            type='password'
+            value={password}
+            onChange={handleChange}
+          />
+        </div>
+        <Button type='submit' className='w-full'>
+          {t('auth.login.button')}
+        </Button>
+      </form>
+
+      <Separator />
+      <div className='flex items-center justify-between text-sm text-muted-foreground'>
+        <div>
+          {t('auth.login.forgot_password')}
+          <Link to='/reset' className='ml-1 text-primary hover:underline'>
+            {t('auth.login.reset_password')}
+          </Link>
+        </div>
+        <div>
+          {t('auth.login.no_account')}
+          <Link to='/register' className='ml-1 text-primary hover:underline'>
+            {t('auth.login.register')}
+          </Link>
+        </div>
+      </div>
+
+      {(status.github_oauth || status.wechat_login || status.lark_client_id) && (
+        <>
+          <div className='relative'>
+            <div className='absolute inset-0 flex items-center'>
+              <Separator />
+            </div>
+            <div className='relative flex justify-center text-xs uppercase'>
+              <span className='bg-card px-2 text-muted-foreground'>
+                {t('auth.login.other_methods')}
+              </span>
+            </div>
+          </div>
+          <div className='flex justify-center gap-3'>
+            {status.github_oauth && (
               <Button
-                fluid
-                size='large'
-                style={{
-                  background: '#2F73FF', // 使用更现代的蓝色
-                  color: 'white',
-                  marginBottom: '1.5em',
-                }}
-                onClick={handleSubmit}
+                variant='outline'
+                size='icon'
+                className='rounded-full'
+                onClick={() => onGitHubOAuthClicked(status.github_client_id)}
               >
-                {t('auth.login.button')}
+                <Github className='h-4 w-4' />
               </Button>
-            </Form>
-
-            <Divider />
-            <Message style={{ background: 'transparent', boxShadow: 'none' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '0.9em',
-                  color: '#666',
-                }}
-              >
-                <div>
-                  {t('auth.login.forgot_password')}
-                  <Link
-                    to='/reset'
-                    style={{ color: '#2185d0', marginLeft: '2px' }}
-                  >
-                    {t('auth.login.reset_password')}
-                  </Link>
-                </div>
-                <div>
-                  {t('auth.login.no_account')}
-                  <Link
-                    to='/register'
-                    style={{ color: '#2185d0', marginLeft: '2px' }}
-                  >
-                    {t('auth.login.register')}
-                  </Link>
-                </div>
-              </div>
-            </Message>
-
-            {(status.github_oauth ||
-              status.wechat_login ||
-              status.lark_client_id) && (
-              <>
-                <Divider
-                  horizontal
-                  style={{ color: '#666', fontSize: '0.9em' }}
-                >
-                  {t('auth.login.other_methods')}
-                </Divider>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '1em',
-                    marginTop: '1em',
-                  }}
-                >
-                  {status.github_oauth && (
-                    <Button
-                      circular
-                      color='black'
-                      icon='github'
-                      onClick={() =>
-                        onGitHubOAuthClicked(status.github_client_id)
-                      }
-                    />
-                  )}
-                  {status.wechat_login && (
-                    <Button
-                      circular
-                      color='green'
-                      icon='wechat'
-                      onClick={onWeChatLoginClicked}
-                    />
-                  )}
-                  {status.lark_client_id && (
-                    <div
-                      style={{
-                        background:
-                          'radial-gradient(circle, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF, #FFFFFF)',
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '10em',
-                        display: 'flex',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => onLarkOAuthClicked(status.lark_client_id)}
-                    >
-                      <Image
-                        src={larkIcon}
-                        avatar
-                        style={{
-                          width: '36px',
-                          height: '36px',
-                          cursor: 'pointer',
-                          margin: 'auto',
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </>
             )}
-          </Card.Content>
-        </Card>
-        <Modal
-          onClose={() => setShowWeChatLoginModal(false)}
-          onOpen={() => setShowWeChatLoginModal(true)}
-          open={showWeChatLoginModal}
-          size={'mini'}
-        >
-          <Modal.Content>
-            <Modal.Description>
-              <Image src={status.wechat_qrcode} fluid />
-              <div style={{ textAlign: 'center' }}>
-                <p>{t('auth.login.wechat.scan_tip')}</p>
-              </div>
-              <Form size='large'>
-                <Form.Input
-                  fluid
-                  placeholder={t('auth.login.wechat.code_placeholder')}
-                  name='wechat_verification_code'
-                  value={inputs.wechat_verification_code}
-                  onChange={handleChange}
-                />
-                <Button
-                  fluid
-                  size='large'
-                  style={{
-                    background: '#2F73FF',
-                    color: 'white',
-                    marginBottom: '1.5em',
-                  }}
-                  onClick={onSubmitWeChatVerificationCode}
-                >
-                  {t('auth.login.button')}
-                </Button>
-              </Form>
-            </Modal.Description>
-          </Modal.Content>
-        </Modal>
-      </Grid.Column>
-    </Grid>
+            {status.wechat_login && (
+              <Button
+                variant='outline'
+                size='icon'
+                className='rounded-full'
+                onClick={onWeChatLoginClicked}
+              >
+                <svg viewBox='0 0 24 24' className='h-4 w-4 fill-current'>
+                  <path d='M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.007-.27-.018-.407-.033zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982z' />
+                </svg>
+              </Button>
+            )}
+            {status.lark_client_id && (
+              <Button
+                variant='outline'
+                size='icon'
+                className='rounded-full'
+                onClick={() => onLarkOAuthClicked(status.lark_client_id)}
+              >
+                <img src={larkIcon} alt='Lark' className='h-4 w-4' />
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+
+      <Dialog open={showWeChatLoginModal} onOpenChange={setShowWeChatLoginModal}>
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle>{t('auth.login.wechat.scan_tip')}</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4'>
+            {status.wechat_qrcode && (
+              <img src={status.wechat_qrcode} alt='WeChat QR Code' className='w-full' />
+            )}
+            <Input
+              placeholder={t('auth.login.wechat.code_placeholder')}
+              name='wechat_verification_code'
+              value={inputs.wechat_verification_code}
+              onChange={handleChange}
+            />
+            <Button className='w-full' onClick={onSubmitWeChatVerificationCode}>
+              {t('auth.login.button')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

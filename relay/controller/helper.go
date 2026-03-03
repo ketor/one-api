@@ -66,6 +66,12 @@ func getPreConsumedQuota(textRequest *relaymodel.GeneralOpenAIRequest, promptTok
 }
 
 func preConsumeQuota(ctx context.Context, textRequest *relaymodel.GeneralOpenAIRequest, promptTokens int, ratio float64, meta *meta.Meta) (int64, *relaymodel.ErrorWithStatusCode) {
+	// If subscription mode and within window limit, skip pre-consume quota
+	if meta.SubscriptionMode && meta.WithinWindow {
+		logger.Info(ctx, fmt.Sprintf("user %d subscription mode, within window, skipping pre-consume quota", meta.UserId))
+		return 0, nil
+	}
+
 	preConsumedQuota := getPreConsumedQuota(textRequest, promptTokens, ratio)
 
 	userQuota, err := model.CacheGetUserQuota(ctx, meta.UserId)
@@ -113,6 +119,36 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 		// we cannot just return, because we may have to return the pre-consumed quota
 		quota = 0
 	}
+
+	// Record usage window for subscription users
+	if meta.SubscriptionMode {
+		err := model.RecordUsageWindow(meta.UserId, textRequest.Model, totalTokens, quota)
+		if err != nil {
+			logger.Error(ctx, "error recording usage window: "+err.Error())
+		}
+	}
+
+	// If subscription mode and within window, skip quota deduction
+	if meta.SubscriptionMode && meta.WithinWindow {
+		logContent := fmt.Sprintf("订阅模式（窗口内）倍率：%.2f × %.2f × %.2f", modelRatio, groupRatio, completionRatio)
+		model.RecordConsumeLog(ctx, &model.Log{
+			UserId:            meta.UserId,
+			ChannelId:         meta.ChannelId,
+			PromptTokens:      promptTokens,
+			CompletionTokens:  completionTokens,
+			ModelName:         textRequest.Model,
+			TokenName:         meta.TokenName,
+			Quota:             0,
+			Content:           logContent,
+			IsStream:          meta.IsStream,
+			ElapsedTime:       helper.CalcElapsedTime(meta.StartTime),
+			SystemPromptReset: systemPromptReset,
+		})
+		model.UpdateUserUsedQuotaAndRequestCount(meta.UserId, 0)
+		return
+	}
+
+	// Overage or non-subscription: normal quota deduction
 	quotaDelta := quota - preConsumedQuota
 	err := model.PostConsumeTokenQuota(meta.TokenId, quotaDelta)
 	if err != nil {
@@ -122,7 +158,19 @@ func postConsumeQuota(ctx context.Context, usage *relaymodel.Usage, meta *meta.M
 	if err != nil {
 		logger.Error(ctx, "error update user quota cache: "+err.Error())
 	}
+
+	// If subscription overage (over window), update monthly spent
+	if meta.SubscriptionMode && !meta.WithinWindow && meta.SubscriptionId > 0 {
+		err = model.IncreaseMonthlySpent(meta.SubscriptionId, quota)
+		if err != nil {
+			logger.Error(ctx, "error updating monthly spent: "+err.Error())
+		}
+	}
+
 	logContent := fmt.Sprintf("倍率：%.2f × %.2f × %.2f", modelRatio, groupRatio, completionRatio)
+	if meta.SubscriptionMode && !meta.WithinWindow {
+		logContent = fmt.Sprintf("订阅超额计费 " + logContent)
+	}
 	model.RecordConsumeLog(ctx, &model.Log{
 		UserId:            meta.UserId,
 		ChannelId:         meta.ChannelId,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from 'semantic-ui-react';
+import { Card } from '../../helpers/semantic-shim';
 import ChannelsTable from '../../components/ChannelsTable';
 import { useTranslation } from 'react-i18next';
 

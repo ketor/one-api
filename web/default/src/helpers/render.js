@@ -1,4 +1,3 @@
-import { Label, Message } from 'semantic-ui-react';
 import { getChannelOption } from './helper';
 import React from 'react';
 
@@ -11,27 +10,27 @@ export function renderText(text, limit) {
 
 export function renderGroup(group) {
   if (group === '') {
-    return <Label>default</Label>;
+    return <span className='inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold'>default</span>;
   }
   let groups = group.split(',');
   groups.sort();
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '2px',
-        rowGap: '6px',
-      }}
-    >
+    <div className='flex flex-wrap items-center gap-1'>
       {groups.map((group) => {
+        let colorClass = 'bg-secondary text-secondary-foreground';
         if (group === 'vip' || group === 'pro') {
-          return <Label color='yellow'>{group}</Label>;
+          colorClass = 'bg-yellow-100 text-yellow-800 border-yellow-300';
         } else if (group === 'svip' || group === 'premium') {
-          return <Label color='red'>{group}</Label>;
+          colorClass = 'bg-red-100 text-red-800 border-red-300';
         }
-        return <Label>{group}</Label>;
+        return (
+          <span
+            key={group}
+            className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${colorClass}`}
+          >
+            {group}
+          </span>
+        );
       })}
     </div>
   );
@@ -58,7 +57,10 @@ export function renderQuota(quota, t, precision = 2) {
 
   if (displayInCurrency) {
     const amount = (quota / quotaPerUnit).toFixed(precision);
-    return t('common.quota.display_short', { amount });
+    if (typeof t === 'function') {
+      return t('common.quota.display_short', { amount });
+    }
+    return `$${amount}`;
   }
 
   return renderNumber(quota);
@@ -73,26 +75,29 @@ export function renderQuotaWithPrompt(quota, t) {
 
   if (displayInCurrency) {
     const amount = (quota / quotaPerUnit).toFixed(2);
-    return ` (${t('common.quota.display', { amount })})`;
+    if (typeof t === 'function') {
+      return ` (${t('common.quota.display', { amount })})`;
+    }
+    return ` ($${amount})`;
   }
 
   return '';
 }
 
-const colors = [
-  'red',
-  'orange',
-  'yellow',
-  'olive',
-  'green',
-  'teal',
-  'blue',
-  'violet',
-  'purple',
-  'pink',
-  'brown',
-  'grey',
-  'black',
+const tailwindColors = [
+  'bg-red-100 text-red-800 border-red-300',
+  'bg-orange-100 text-orange-800 border-orange-300',
+  'bg-yellow-100 text-yellow-800 border-yellow-300',
+  'bg-lime-100 text-lime-800 border-lime-300',
+  'bg-green-100 text-green-800 border-green-300',
+  'bg-teal-100 text-teal-800 border-teal-300',
+  'bg-blue-100 text-blue-800 border-blue-300',
+  'bg-violet-100 text-violet-800 border-violet-300',
+  'bg-purple-100 text-purple-800 border-purple-300',
+  'bg-pink-100 text-pink-800 border-pink-300',
+  'bg-amber-100 text-amber-800 border-amber-300',
+  'bg-gray-100 text-gray-800 border-gray-300',
+  'bg-slate-100 text-slate-800 border-slate-300',
 ];
 
 export function renderColorLabel(text) {
@@ -100,11 +105,11 @@ export function renderColorLabel(text) {
   for (let i = 0; i < text.length; i++) {
     hash = text.charCodeAt(i) + ((hash << 5) - hash);
   }
-  let index = Math.abs(hash % colors.length);
+  let index = Math.abs(hash % tailwindColors.length);
   return (
-    <Label basic color={colors[index]}>
+    <span className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold ${tailwindColors[index]}`}>
       {text}
-    </Label>
+    </span>
   );
 }
 
@@ -114,8 +119,8 @@ export function renderChannelTip(channelId) {
     return <></>;
   }
   return (
-    <Message>
+    <div className='rounded-lg border bg-muted/50 p-4'>
       <div dangerouslySetInnerHTML={{ __html: channel.tip }}></div>
-    </Message>
+    </div>
   );
 }

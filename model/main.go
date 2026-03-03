@@ -132,6 +132,7 @@ func InitDB() {
 		return
 	}
 	logger.SysLog("database migrated")
+	InitDefaultPlans()
 }
 
 func migrateDB() error {
@@ -158,6 +159,24 @@ func migrateDB() error {
 		return err
 	}
 	if err = DB.AutoMigrate(&Channel{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Plan{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Subscription{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&Order{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&UsageWindow{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&BoosterPack{}); err != nil {
+		return err
+	}
+	if err = DB.AutoMigrate(&UserBoosterPack{}); err != nil {
 		return err
 	}
 	return nil

@@ -3,11 +3,9 @@ import { useTranslation } from 'react-i18next';
 import {
   Button,
   Form,
-  Header,
   Message,
-  Segment,
   Card,
-} from 'semantic-ui-react';
+} from '../../helpers/semantic-shim';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   API,
@@ -76,10 +74,10 @@ const EditToken = () => {
         }
         setInputs(data);
       } else {
-        showError(message || 'Failed to load token');
+        showError(message || '加载令牌失败');
       }
     } catch (error) {
-      showError(error.message || 'Network error');
+      showError(error.message || '网络错误');
     }
     setLoading(false);
   };
@@ -98,22 +96,22 @@ const EditToken = () => {
         });
         setModelOptions(options);
       } else {
-        showError(message || 'Failed to load models');
+        showError(message || '加载模型失败');
       }
     } catch (error) {
-      showError(error.message || 'Network error');
+      showError(error.message || '网络错误');
     }
   };
 
   useEffect(() => {
     if (isEdit) {
       loadToken().catch((error) => {
-        showError(error.message || 'Failed to load token');
+        showError(error.message || '加载令牌失败');
         setLoading(false);
       });
     }
     loadAvailableModels().catch((error) => {
-      showError(error.message || 'Failed to load models');
+      showError(error.message || '加载模型失败');
     });
   }, []);
 

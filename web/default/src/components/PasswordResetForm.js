@@ -1,15 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Card,
-  Message,
-} from 'semantic-ui-react';
 import { useTranslation } from 'react-i18next';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 import Turnstile from 'react-turnstile';
 
 const PasswordResetForm = () => {
@@ -79,78 +72,44 @@ const PasswordResetForm = () => {
   }
 
   return (
-    <Grid textAlign='center' style={{ marginTop: '48px' }}>
-      <Grid.Column style={{ maxWidth: 450 }}>
-        <Card
-          fluid
-          className='chart-card'
-          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
+    <div className='space-y-6'>
+      <div className='flex flex-col items-center space-y-2'>
+        {logo && <img src={logo} alt='logo' className='h-10' />}
+        <h2 className='text-2xl font-semibold tracking-tight'>
+          {t('auth.reset.title')}
+        </h2>
+      </div>
+      <form className='space-y-4' onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+        <Input
+          placeholder={t('auth.reset.email')}
+          name='email'
+          value={email}
+          onChange={handleChange}
+        />
+        {turnstileEnabled && (
+          <div className='flex justify-center'>
+            <Turnstile
+              sitekey={turnstileSiteKey}
+              onVerify={(token) => {
+                setTurnstileToken(token);
+              }}
+            />
+          </div>
+        )}
+        <Button
+          type='submit'
+          className='w-full'
+          disabled={loading || disableButton}
         >
-          <Card.Content>
-            <Card.Header>
-              <Header
-                as='h2'
-                textAlign='center'
-                style={{ marginBottom: '1.5em' }}
-              >
-                <Image src={logo} style={{ marginBottom: '10px' }} />
-                <Header.Content>{t('auth.reset.title')}</Header.Content>
-              </Header>
-            </Card.Header>
-            <Form size='large'>
-              <Form.Input
-                fluid
-                icon='mail'
-                iconPosition='left'
-                placeholder={t('auth.reset.email')}
-                name='email'
-                value={email}
-                onChange={handleChange}
-                style={{ marginBottom: '1em' }}
-              />
-              {turnstileEnabled && (
-                <div
-                  style={{
-                    marginBottom: '1em',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Turnstile
-                    sitekey={turnstileSiteKey}
-                    onVerify={(token) => {
-                      setTurnstileToken(token);
-                    }}
-                  />
-                </div>
-              )}
-              <Button
-                color='blue'
-                fluid
-                size='large'
-                onClick={handleSubmit}
-                loading={loading}
-                disabled={disableButton}
-                style={{
-                  background: '#2F73FF', // 使用更现代的蓝色
-                  color: 'white',
-                  marginBottom: '1.5em',
-                }}
-              >
-                {disableButton
-                  ? t('auth.register.get_code_retry', { countdown })
-                  : t('auth.reset.button')}
-              </Button>
-            </Form>
-            <Message style={{ background: 'transparent', boxShadow: 'none' }}>
-              <p style={{ fontSize: '0.9em', color: '#666' }}>
-                {t('auth.reset.notice')}
-              </p>
-            </Message>
-          </Card.Content>
-        </Card>
-      </Grid.Column>
-    </Grid>
+          {disableButton
+            ? t('auth.register.get_code_retry', { countdown })
+            : t('auth.reset.button')}
+        </Button>
+      </form>
+      <p className='text-center text-sm text-muted-foreground'>
+        {t('auth.reset.notice')}
+      </p>
+    </div>
   );
 };
 

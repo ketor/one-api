@@ -9,7 +9,7 @@ import {
   Select,
   Table,
   Popup,
-} from 'semantic-ui-react';
+} from '../helpers/semantic-shim';
 import {
   API,
   copy,

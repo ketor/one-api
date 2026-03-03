@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Image,
-  Card,
-  Message,
-} from 'semantic-ui-react';
 import { useTranslation } from 'react-i18next';
 import { API, copy, getLogo, showError, showNotice } from '../helpers';
 import { useSearchParams } from 'react-router-dom';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 const PasswordResetConfirm = () => {
   const { t } = useTranslation();
@@ -23,17 +16,13 @@ const PasswordResetConfirm = () => {
   const [disableButton, setDisableButton] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const logo = getLogo();
-
   const [countdown, setCountdown] = useState(30);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   useEffect(() => {
     let token = searchParams.get('token');
     let email = searchParams.get('email');
-    setInputs({
-      token,
-      email,
-    });
+    setInputs({ token, email });
   }, []);
 
   useEffect(() => {
@@ -53,10 +42,7 @@ const PasswordResetConfirm = () => {
     setDisableButton(true);
     if (!email) return;
     setLoading(true);
-    const res = await API.post(`/api/user/reset`, {
-      email,
-      token,
-    });
+    const res = await API.post(`/api/user/reset`, { email, token });
     const { success, message } = res.data;
     if (success) {
       let password = res.data.data;
@@ -70,84 +56,50 @@ const PasswordResetConfirm = () => {
   }
 
   return (
-    <Grid textAlign='center' style={{ marginTop: '48px' }}>
-      <Grid.Column style={{ maxWidth: 450 }}>
-        <Card
-          fluid
-          className='chart-card'
-          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
+    <div className='space-y-6'>
+      <div className='flex flex-col items-center space-y-2'>
+        {logo && <img src={logo} alt='logo' className='h-10' />}
+        <h2 className='text-2xl font-semibold tracking-tight'>
+          {t('auth.reset.confirm.title')}
+        </h2>
+      </div>
+      <form className='space-y-4' onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+        <Input
+          placeholder={t('auth.reset.email')}
+          name='email'
+          value={email}
+          readOnly
+        />
+        {newPassword && (
+          <Input
+            placeholder={t('auth.reset.confirm.new_password')}
+            name='newPassword'
+            value={newPassword}
+            readOnly
+            className='cursor-pointer bg-muted'
+            onClick={(e) => {
+              e.target.select();
+              navigator.clipboard.writeText(newPassword);
+              showNotice(t('auth.reset.confirm.notice'));
+            }}
+          />
+        )}
+        <Button
+          type='submit'
+          className='w-full'
+          disabled={loading || disableButton}
         >
-          <Card.Content>
-            <Card.Header>
-              <Header
-                as='h2'
-                textAlign='center'
-                style={{ marginBottom: '1.5em' }}
-              >
-                <Image src={logo} style={{ marginBottom: '10px' }} />
-                <Header.Content>{t('auth.reset.confirm.title')}</Header.Content>
-              </Header>
-            </Card.Header>
-            <Form size='large'>
-              <Form.Input
-                fluid
-                icon='mail'
-                iconPosition='left'
-                placeholder={t('auth.reset.email')}
-                name='email'
-                value={email}
-                readOnly
-                style={{ marginBottom: '1em' }}
-              />
-              {newPassword && (
-                <Form.Input
-                  fluid
-                  icon='lock'
-                  iconPosition='left'
-                  placeholder={t('auth.reset.confirm.new_password')}
-                  name='newPassword'
-                  value={newPassword}
-                  readOnly
-                  style={{
-                    marginBottom: '1em',
-                    cursor: 'pointer',
-                    backgroundColor: '#f8f9fa',
-                  }}
-                  onClick={(e) => {
-                    e.target.select();
-                    navigator.clipboard.writeText(newPassword);
-                    showNotice(t('auth.reset.confirm.notice'));
-                  }}
-                />
-              )}
-              <Button
-                fluid
-                size='large'
-                onClick={handleSubmit}
-                loading={loading}
-                disabled={disableButton}
-                style={{
-                  background: '#2F73FF',
-                  color: 'white',
-                  marginBottom: '1.5em',
-                }}
-              >
-                {disableButton
-                  ? t('auth.reset.confirm.button_disabled')
-                  : t('auth.reset.confirm.button')}
-              </Button>
-            </Form>
-            {newPassword && (
-              <Message style={{ background: 'transparent', boxShadow: 'none' }}>
-                <p style={{ fontSize: '0.9em', color: '#666' }}>
-                  {t('auth.reset.confirm.notice')}
-                </p>
-              </Message>
-            )}
-          </Card.Content>
-        </Card>
-      </Grid.Column>
-    </Grid>
+          {disableButton
+            ? t('auth.reset.confirm.button_disabled')
+            : t('auth.reset.confirm.button')}
+        </Button>
+      </form>
+      {newPassword && (
+        <p className='text-center text-sm text-muted-foreground'>
+          {t('auth.reset.confirm.notice')}
+        </p>
+      )}
+    </div>
   );
 };
 

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from 'semantic-ui-react';
 import { API, showError } from '../../helpers';
 import { marked } from 'marked';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../components/ui/card';
 
 const About = () => {
   const { t } = useTranslation();
@@ -34,16 +39,23 @@ const About = () => {
   return (
     <>
       {aboutLoaded && about === '' ? (
-        <div className='dashboard-container'>
-          <Card fluid className='chart-card'>
-            <Card.Content>
-              <Card.Header className='header'>{t('about.title')}</Card.Header>
+        <div className='container mx-auto max-w-5xl py-8 px-4'>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('about.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <p>{t('about.description')}</p>
-              {t('about.repository')}
-              <a href='https://github.com/songquanpeng/one-api'>
-                https://github.com/songquanpeng/one-api
-              </a>
-            </Card.Content>
+              <p className='mt-2'>
+                {t('about.repository')}
+                <a
+                  href='https://github.com/songquanpeng/one-api'
+                  className='ml-1 text-primary hover:underline'
+                >
+                  https://github.com/songquanpeng/one-api
+                </a>
+              </p>
+            </CardContent>
           </Card>
         </div>
       ) : (
@@ -54,14 +66,14 @@ const About = () => {
               style={{ width: '100%', height: '100vh', border: 'none' }}
             />
           ) : (
-            <div className='dashboard-container'>
-              <Card fluid className='chart-card'>
-                <Card.Content>
+            <div className='container mx-auto max-w-5xl py-8 px-4'>
+              <Card>
+                <CardContent className='pt-6'>
                   <div
-                    style={{ fontSize: 'larger' }}
+                    className='prose prose-neutral max-w-none'
                     dangerouslySetInnerHTML={{ __html: about }}
-                  ></div>
-                </Card.Content>
+                  />
+                </CardContent>
               </Card>
             </div>
           )}

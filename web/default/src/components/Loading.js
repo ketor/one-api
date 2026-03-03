@@ -1,13 +1,13 @@
 import React from 'react';
-import { Segment, Dimmer, Loader } from 'semantic-ui-react';
 
 const Loading = ({ prompt: name = 'page' }) => {
   return (
-    <Segment style={{ height: 100 }}>
-      <Dimmer active inverted>
-        <Loader indeterminate>加载{name}中...</Loader>
-      </Dimmer>
-    </Segment>
+    <div className='flex items-center justify-center' style={{ height: 100 }}>
+      <div className='flex flex-col items-center gap-2'>
+        <div className='h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent' />
+        <span className='text-sm text-muted-foreground'>加载{name}中...</span>
+      </div>
+    </div>
   );
 };
 

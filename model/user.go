@@ -161,7 +161,42 @@ func (user *User) Insert(ctx context.Context, inviterId int) error {
 		// do not block
 		logger.SysError(fmt.Sprintf("create default token for user %d failed: %s", user.Id, result.Error.Error()))
 	}
+	// Auto-assign Lite (free) plan subscription for new users
+	assignDefaultSubscription(user.Id)
 	return nil
+}
+
+func assignDefaultSubscription(userId int) {
+	litePlan, err := GetPlanByName("lite")
+	if err != nil {
+		logger.SysError(fmt.Sprintf("failed to get lite plan for new user %d: %s", userId, err.Error()))
+		return
+	}
+	now := helper.GetTimestamp()
+	// Set period to 30 days
+	periodEnd := now + 30*24*3600
+	sub := &Subscription{
+		UserId:             userId,
+		PlanId:             litePlan.Id,
+		Status:             SubscriptionStatusActive,
+		CurrentPeriodStart: now,
+		CurrentPeriodEnd:   periodEnd,
+		MonthlySpentCents:  0,
+		AutoRenew:          true,
+		CreatedTime:        now,
+		UpdatedTime:        now,
+	}
+	if err := DB.Create(sub).Error; err != nil {
+		logger.SysError(fmt.Sprintf("failed to create lite subscription for user %d: %s", userId, err.Error()))
+		return
+	}
+	// Update user group to match plan
+	if litePlan.GroupName != "" {
+		err = DB.Model(&User{}).Where("id = ?", userId).Update("group", litePlan.GroupName).Error
+		if err != nil {
+			logger.SysError(fmt.Sprintf("failed to update group for user %d: %s", userId, err.Error()))
+		}
+	}
 }
 
 func (user *User) Update(updatePassword bool) error {

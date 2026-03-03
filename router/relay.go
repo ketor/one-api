@@ -17,8 +17,15 @@ func SetRelayRouter(router *gin.Engine) {
 		modelsRouter.GET("", controller.ListModels)
 		modelsRouter.GET("/:model", controller.RetrieveModel)
 	}
+	// Anthropic compatible routes
+	anthropicRouter := router.Group("/anthropic/v1")
+	anthropicRouter.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.SubscriptionCheck(), middleware.Distribute())
+	{
+		anthropicRouter.POST("/messages", controller.Relay)
+	}
+
 	relayV1Router := router.Group("/v1")
-	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.Distribute())
+	relayV1Router.Use(middleware.RelayPanicRecover(), middleware.TokenAuth(), middleware.SubscriptionCheck(), middleware.Distribute())
 	{
 		relayV1Router.Any("/oneapi/proxy/:channelid/*target", controller.Relay)
 		relayV1Router.POST("/completions", controller.Relay)

@@ -1,15 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Grid, Header } from 'semantic-ui-react';
 import { API, showError, showNotice, timestamp2string } from '../../helpers';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 import { UserContext } from '../../context/User';
-import { Link } from 'react-router-dom';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Info, GitBranch, Github, Clock, Mail, Shield } from 'lucide-react';
 
 const Home = () => {
   const { t } = useTranslation();
-  const [statusState, statusDispatch] = useContext(StatusContext);
+  const [statusState] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
   const [userState] = useContext(UserContext);
@@ -57,224 +65,116 @@ const Home = () => {
     displayHomePageContent().then();
   }, []);
 
+  const StatusItem = ({ icon: Icon, label, value }) => (
+    <div className='flex items-center gap-2'>
+      <Icon className='h-4 w-4 text-muted-foreground' />
+      <span className='font-medium'>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+
+  const ConfigItem = ({ icon: Icon, label, enabled }) => (
+    <div className='flex items-center gap-2'>
+      <Icon className='h-4 w-4 text-muted-foreground' />
+      <span className='font-medium'>{label}</span>
+      <Badge variant={enabled ? 'default' : 'secondary'}>
+        {enabled
+          ? t('home.system_status.config.enabled')
+          : t('home.system_status.config.disabled')}
+      </Badge>
+    </div>
+  );
+
   return (
     <>
       {homePageContentLoaded && homePageContent === '' ? (
-        <div className='dashboard-container'>
-          <Card fluid className='chart-card'>
-            <Card.Content>
-              <Card.Header className='header'>
-                {t('home.welcome.title')}
-              </Card.Header>
-              <Card.Description style={{ lineHeight: '1.6' }}>
+        <div className='container mx-auto max-w-5xl space-y-6 py-8 px-4'>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('home.welcome.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className='leading-relaxed'>
                 <p>{t('home.welcome.description')}</p>
-                {!userState.user && <p>{t('home.welcome.login_notice')}</p>}
-              </Card.Description>
-            </Card.Content>
+                {!userState.user && <p className='mt-2'>{t('home.welcome.login_notice')}</p>}
+              </CardDescription>
+            </CardContent>
           </Card>
-          <Card fluid className='chart-card'>
-            <Card.Content>
-              <Card.Header>
-                <Header as='h3'>{t('home.system_status.title')}</Header>
-              </Card.Header>
-              <Grid columns={2} stackable>
-                <Grid.Column>
-                  <Card
-                    fluid
-                    className='chart-card'
-                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
-                  >
-                    <Card.Content>
-                      <Card.Header>
-                        <Header as='h3' style={{ color: '#444' }}>
-                          {t('home.system_status.info.title')}
-                        </Header>
-                      </Card.Header>
-                      <Card.Description
-                        style={{ lineHeight: '2', marginTop: '1em' }}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('home.system_status.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className='grid gap-6 md:grid-cols-2'>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className='text-base'>
+                      {t('home.system_status.info.title')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className='space-y-3'>
+                    <StatusItem
+                      icon={Info}
+                      label={t('home.system_status.info.name')}
+                      value={statusState?.status?.system_name}
+                    />
+                    <StatusItem
+                      icon={GitBranch}
+                      label={t('home.system_status.info.version')}
+                      value={statusState?.status?.version || 'unknown'}
+                    />
+                    <div className='flex items-center gap-2'>
+                      <Github className='h-4 w-4 text-muted-foreground' />
+                      <span className='font-medium'>
+                        {t('home.system_status.info.source')}
+                      </span>
+                      <a
+                        href='https://github.com/songquanpeng/one-api'
+                        target='_blank'
+                        rel='noreferrer'
+                        className='text-primary hover:underline'
                       >
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='info circle icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.info.name')}
-                          </span>
-                          <span>{statusState?.status?.system_name}</span>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='code branch icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.info.version')}
-                          </span>
-                          <span>
-                            {statusState?.status?.version || 'unknown'}
-                          </span>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='github icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.info.source')}
-                          </span>
-                          <a
-                            href='https://github.com/songquanpeng/one-api'
-                            target='_blank'
-                            style={{ color: '#2185d0' }}
-                          >
-                            {t('home.system_status.info.source_link')}
-                          </a>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='clock outline icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.info.start_time')}
-                          </span>
-                          <span>{getStartTimeString()}</span>
-                        </p>
-                      </Card.Description>
-                    </Card.Content>
-                  </Card>
-                </Grid.Column>
-
-                <Grid.Column>
-                  <Card
-                    fluid
-                    className='chart-card'
-                    style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}
-                  >
-                    <Card.Content>
-                      <Card.Header>
-                        <Header as='h3' style={{ color: '#444' }}>
-                          {t('home.system_status.config.title')}
-                        </Header>
-                      </Card.Header>
-                      <Card.Description
-                        style={{ lineHeight: '2', marginTop: '1em' }}
-                      >
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='envelope icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.config.email_verify')}
-                          </span>
-                          <span
-                            style={{
-                              color: statusState?.status?.email_verification
-                                ? '#21ba45'
-                                : '#db2828',
-                              fontWeight: '500',
-                            }}
-                          >
-                            {statusState?.status?.email_verification
-                              ? t('home.system_status.config.enabled')
-                              : t('home.system_status.config.disabled')}
-                          </span>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='github icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.config.github_oauth')}
-                          </span>
-                          <span
-                            style={{
-                              color: statusState?.status?.github_oauth
-                                ? '#21ba45'
-                                : '#db2828',
-                              fontWeight: '500',
-                            }}
-                          >
-                            {statusState?.status?.github_oauth
-                              ? t('home.system_status.config.enabled')
-                              : t('home.system_status.config.disabled')}
-                          </span>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='wechat icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.config.wechat_login')}
-                          </span>
-                          <span
-                            style={{
-                              color: statusState?.status?.wechat_login
-                                ? '#21ba45'
-                                : '#db2828',
-                              fontWeight: '500',
-                            }}
-                          >
-                            {statusState?.status?.wechat_login
-                              ? t('home.system_status.config.enabled')
-                              : t('home.system_status.config.disabled')}
-                          </span>
-                        </p>
-                        <p
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5em',
-                          }}
-                        >
-                          <i className='shield alternate icon'></i>
-                          <span style={{ fontWeight: 'bold' }}>
-                            {t('home.system_status.config.turnstile')}
-                          </span>
-                          <span
-                            style={{
-                              color: statusState?.status?.turnstile_check
-                                ? '#21ba45'
-                                : '#db2828',
-                              fontWeight: '500',
-                            }}
-                          >
-                            {statusState?.status?.turnstile_check
-                              ? t('home.system_status.config.enabled')
-                              : t('home.system_status.config.disabled')}
-                          </span>
-                        </p>
-                      </Card.Description>
-                    </Card.Content>
-                  </Card>
-                </Grid.Column>
-              </Grid>
-            </Card.Content>
+                        {t('home.system_status.info.source_link')}
+                      </a>
+                    </div>
+                    <StatusItem
+                      icon={Clock}
+                      label={t('home.system_status.info.start_time')}
+                      value={getStartTimeString()}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className='text-base'>
+                      {t('home.system_status.config.title')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className='space-y-3'>
+                    <ConfigItem
+                      icon={Mail}
+                      label={t('home.system_status.config.email_verify')}
+                      enabled={statusState?.status?.email_verification}
+                    />
+                    <ConfigItem
+                      icon={Github}
+                      label={t('home.system_status.config.github_oauth')}
+                      enabled={statusState?.status?.github_oauth}
+                    />
+                    <ConfigItem
+                      icon={Info}
+                      label={t('home.system_status.config.wechat_login')}
+                      enabled={statusState?.status?.wechat_login}
+                    />
+                    <ConfigItem
+                      icon={Shield}
+                      label={t('home.system_status.config.turnstile')}
+                      enabled={statusState?.status?.turnstile_check}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
           </Card>
         </div>
       ) : (
@@ -286,9 +186,9 @@ const Home = () => {
             />
           ) : (
             <div
-              style={{ fontSize: 'larger' }}
+              className='prose prose-neutral mx-auto max-w-5xl py-8 px-4'
               dangerouslySetInnerHTML={{ __html: homePageContent }}
-            ></div>
+            />
           )}
         </>
       )}

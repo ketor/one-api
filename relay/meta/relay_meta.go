@@ -35,6 +35,11 @@ type Meta struct {
 	PromptTokens       int // only for DoResponse
 	ForcedSystemPrompt string
 	StartTime          time.Time
+	// Subscription-related fields
+	SubscriptionMode bool // whether user is in subscription billing mode
+	WithinWindow     bool // whether request is within the window limit
+	SubscriptionId   int  // active subscription ID
+	PlanId           int  // active plan ID
 }
 
 func GetByContext(c *gin.Context) *Meta {
@@ -53,6 +58,10 @@ func GetByContext(c *gin.Context) *Meta {
 		RequestURLPath:     c.Request.URL.String(),
 		ForcedSystemPrompt: c.GetString(ctxkey.SystemPrompt),
 		StartTime:          time.Now(),
+		SubscriptionMode:   c.GetBool(ctxkey.SubscriptionMode),
+		WithinWindow:       c.GetBool(ctxkey.WithinWindow),
+		SubscriptionId:     c.GetInt(ctxkey.SubscriptionId),
+		PlanId:             c.GetInt(ctxkey.PlanId),
 	}
 	cfg, ok := c.Get(ctxkey.Config)
 	if ok {
