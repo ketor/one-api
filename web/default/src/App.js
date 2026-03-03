@@ -25,6 +25,7 @@ const DocsHome = lazy(() => import('./pages/docs/DocsHome'));
 const DocsApi = lazy(() => import('./pages/docs/DocsApi'));
 const DocsSdk = lazy(() => import('./pages/docs/DocsSdk'));
 const DocsTools = lazy(() => import('./pages/docs/DocsTools'));
+const DocsBilling = lazy(() => import('./pages/docs/DocsBilling'));
 const DocsErrors = lazy(() => import('./pages/docs/DocsErrors'));
 const DocsFaq = lazy(() => import('./pages/docs/DocsFaq'));
 
@@ -147,6 +148,7 @@ function App() {
           <Route path='/docs/api' element={<DocsApi />} />
           <Route path='/docs/sdk' element={<DocsSdk />} />
           <Route path='/docs/tools' element={<DocsTools />} />
+          <Route path='/docs/billing' element={<DocsBilling />} />
           <Route path='/docs/errors' element={<DocsErrors />} />
           <Route path='/docs/faq' element={<DocsFaq />} />
         </Route>

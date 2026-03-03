@@ -11,6 +11,7 @@ const docsSidebarItemKeys = [
   { key: 'docs.sidebar.api_docs', to: '/docs/api' },
   { key: 'docs.sidebar.sdk', to: '/docs/sdk' },
   { key: 'docs.sidebar.tools', to: '/docs/tools' },
+  { key: 'docs.sidebar.billing', to: '/docs/billing' },
   { key: 'docs.sidebar.errors', to: '/docs/errors' },
   { key: 'docs.sidebar.faq', to: '/docs/faq' },
 ];
