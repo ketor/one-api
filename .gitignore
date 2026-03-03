@@ -11,5 +11,8 @@ data
 cmd.md
 .env
 /one-api
+/one-api-server
+server.log
+.claude/
 temp
 .DS_Store
