@@ -36,7 +36,7 @@
     }
   },
   "channel": {
-    "title": "管理渠道",
+    "title": "渠道管理",
     "search": "搜索渠道的 ID，名称和密钥 ...",
     "balance_notice": "OpenAI 渠道已经不再支持通过 key 获取余额，因此余额显示为 0。对于支持的渠道类型，请点击余额进行刷新。",
     "test_notice": "渠道测试仅支持 chat 模型，优先使用 gpt-3.5-turbo，如果该模型不可用则使用你所配置的模型列表中的第一个模型。",
@@ -485,6 +485,17 @@
           "confirm": "确认删除",
           "cancel": "取消"
         }
+      },
+      "messages": {
+        "token_reset_copied": "令牌已重置并已复制到剪贴板",
+        "invite_link_copied": "邀请链接已复制到剪贴板",
+        "system_token_copied": "系统令牌已复制到剪贴板",
+        "confirm_delete_error": "请输入你的账户名以确认删除！",
+        "account_deleted": "账户已删除！",
+        "wechat_bindSuccess": "微信账户绑定成功！",
+        "turnstile_wait": "请稍后几秒重试，Turnstile 正在检查用户环境！",
+        "verification_sent": "验证码发送成功，请检查邮箱！",
+        "email_bindSuccess": "邮箱账户绑定成功！"
       }
     },
     "system": {
@@ -670,6 +681,13 @@
         "buttons": {
           "save": "保存通用设置"
         }
+      },
+      "messages": {
+        "model_ratio_invalid": "模型倍率不是合法的 JSON 字符串",
+        "group_ratio_invalid": "分组倍率不是合法的 JSON 字符串",
+        "completion_ratio_invalid": "补全倍率不是合法的 JSON 字符串",
+        "logs_cleaned": "{{count}} 条日志已清理！",
+        "log_clean_failed": "日志清理失败："
       }
     },
     "other": {
@@ -720,6 +738,14 @@
       },
       "copyright": {
         "notice": "Alaya Code 由九章云极 DataCanvas 提供技术支持，Alaya NeW 智算算力服务平台。"
+      },
+      "messages": {
+        "already_latest": "当前已是最新版本"
+      },
+      "update_modal": {
+        "title": "新版本：{{version}}",
+        "close": "关闭",
+        "details": "详情"
       }
     }
   },
@@ -1216,7 +1242,7 @@
       "admin_dashboard": "数据看板",
       "user_management": "用户管理",
       "channel_management": "渠道管理",
-      "redemption": "兑换码",
+      "redemption": "兑换管理",
       "logs": "日志",
       "system_settings": "系统设置",
       "current_plan": "当前套餐",

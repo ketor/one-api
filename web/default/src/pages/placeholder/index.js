@@ -34,5 +34,5 @@ export const AdminKeysAudit = createPlaceholder('Admin Keys Audit');
 export const AdminUsageMonitor = createPlaceholder('Admin Usage Monitor');
 export const AdminUsers = createPlaceholder('Admin User Management');
 export const AdminChannels = createPlaceholder('Admin Channel Management');
-export const AdminRedemptions = createPlaceholder('Admin Redemption Codes');
+export const AdminRedemptions = createPlaceholder('Admin Redemption Management');
 export const AdminSettings = createPlaceholder('Admin System Settings');

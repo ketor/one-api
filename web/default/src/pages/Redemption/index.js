@@ -10,7 +10,7 @@ const Redemption = () => {
     <div className='dashboard-container'>
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header className='header'>{t('redemption.title')}</Card.Header>
+          <Card.Header className='header' style={{ marginBottom: '1em' }}>{t('redemption.title')}</Card.Header>
           <RedemptionsTable />
         </Card.Content>
       </Card>

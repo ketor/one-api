@@ -485,6 +485,17 @@
           "confirm": "Confirm Delete",
           "cancel": "Cancel"
         }
+      },
+      "messages": {
+        "token_reset_copied": "Token has been reset and copied to clipboard",
+        "invite_link_copied": "Invite link copied to clipboard",
+        "system_token_copied": "System token copied to clipboard",
+        "confirm_delete_error": "Please enter your username to confirm deletion!",
+        "account_deleted": "Account deleted!",
+        "wechat_bindSuccess": "WeChat account bound successfully!",
+        "turnstile_wait": "Please wait a few seconds and retry, Turnstile is checking user environment!",
+        "verification_sent": "Verification code sent, please check your email!",
+        "email_bindSuccess": "Email account bound successfully!"
       }
     },
     "system": {
@@ -672,6 +683,13 @@
         "buttons": {
           "save": "Save General Settings"
         }
+      },
+      "messages": {
+        "model_ratio_invalid": "Model ratio is not valid JSON",
+        "group_ratio_invalid": "Group ratio is not valid JSON",
+        "completion_ratio_invalid": "Completion ratio is not valid JSON",
+        "logs_cleaned": "{{count}} logs have been cleaned!",
+        "log_clean_failed": "Log cleanup failed: "
       }
     },
     "other": {
@@ -724,6 +742,14 @@
       },
       "copyright": {
         "notice": "Alaya Code is powered by 九章云极 DataCanvas, Alaya NeW AI Computing Platform."
+      },
+      "messages": {
+        "already_latest": "Already on the latest version"
+      },
+      "update_modal": {
+        "title": "New version: {{version}}",
+        "close": "Close",
+        "details": "Details"
       }
     }
   },
@@ -1220,7 +1246,7 @@
       "admin_dashboard": "Dashboard",
       "user_management": "User Management",
       "channel_management": "Channel Management",
-      "redemption": "Redemption Codes",
+      "redemption": "Redemption Management",
       "logs": "Logs",
       "system_settings": "System Settings",
       "current_plan": "Current Plan",

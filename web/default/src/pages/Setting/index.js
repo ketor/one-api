@@ -52,7 +52,7 @@ const Setting = () => {
     <div className='dashboard-container'>
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header className='header'>{t('setting.title')}</Card.Header>
+          <Card.Header className='header' style={{ marginBottom: '1em' }}>{t('setting.title')}</Card.Header>
           <Tab
             menu={{
               secondary: true,

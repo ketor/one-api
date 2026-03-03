@@ -10,7 +10,7 @@ const User = () => {
     <div className='dashboard-container'>
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header className='header'>{t('user.title')}</Card.Header>
+          <Card.Header className='header' style={{ marginBottom: '1em' }}>{t('user.title')}</Card.Header>
           <UsersTable />
         </Card.Content>
       </Card>

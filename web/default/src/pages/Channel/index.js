@@ -10,7 +10,7 @@ const Channel = () => {
     <div className='dashboard-container'>
       <Card fluid className='chart-card'>
         <Card.Content>
-          <Card.Header className='header'>{t('channel.title')}</Card.Header>
+          <Card.Header className='header' style={{ marginBottom: '1em' }}>{t('channel.title')}</Card.Header>
           <ChannelsTable />
         </Card.Content>
       </Card>

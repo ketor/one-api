@@ -118,21 +118,21 @@ const OperationSetting = () => {
       case 'ratio':
         if (originInputs['ModelRatio'] !== inputs.ModelRatio) {
           if (!verifyJSON(inputs.ModelRatio)) {
-            showError('模型倍率不是合法的 JSON 字符串');
+            showError(t('setting.operation.messages.model_ratio_invalid'));
             return;
           }
           await updateOption('ModelRatio', inputs.ModelRatio);
         }
         if (originInputs['GroupRatio'] !== inputs.GroupRatio) {
           if (!verifyJSON(inputs.GroupRatio)) {
-            showError('分组倍率不是合法的 JSON 字符串');
+            showError(t('setting.operation.messages.group_ratio_invalid'));
             return;
           }
           await updateOption('GroupRatio', inputs.GroupRatio);
         }
         if (originInputs['CompletionRatio'] !== inputs.CompletionRatio) {
           if (!verifyJSON(inputs.CompletionRatio)) {
-            showError('补全倍率不是合法的 JSON 字符串');
+            showError(t('setting.operation.messages.completion_ratio_invalid'));
             return;
           }
           await updateOption('CompletionRatio', inputs.CompletionRatio);
@@ -175,10 +175,10 @@ const OperationSetting = () => {
     );
     const { success, message, data } = res.data;
     if (success) {
-      showSuccess(`${data} 条日志已清理！`);
+      showSuccess(t('setting.operation.messages.logs_cleaned', { count: data }));
       return;
     }
-    showError('日志清理失败：' + message);
+    showError(t('setting.operation.messages.log_clean_failed') + message);
   };
 
   return (

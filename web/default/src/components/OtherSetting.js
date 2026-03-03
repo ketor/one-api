@@ -99,7 +99,7 @@ const OtherSetting = () => {
   };
 
   const checkUpdate = async () => {
-    showSuccess('当前已是最新版本');
+    showSuccess(t('setting.other.messages.already_latest'));
   };
 
   return (
@@ -217,16 +217,16 @@ const OtherSetting = () => {
         onOpen={() => setShowUpdateModal(true)}
         open={showUpdateModal}
       >
-        <Modal.Header>新版本：{updateData.tag_name}</Modal.Header>
+        <Modal.Header>{t('setting.other.update_modal.title', { version: updateData.tag_name })}</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <div dangerouslySetInnerHTML={{ __html: updateData.content }}></div>
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setShowUpdateModal(false)}>关闭</Button>
+          <Button onClick={() => setShowUpdateModal(false)}>{t('setting.other.update_modal.close')}</Button>
           <Button
-            content='详情'
+            content={t('setting.other.update_modal.details')}
             onClick={() => {
               setShowUpdateModal(false);
               openGitHubRelease();

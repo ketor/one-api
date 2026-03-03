@@ -32,7 +32,7 @@ const adminSidebarItems = [
   { name: '用量监控', to: '/admin/usage', icon: BarChart3 },
   { name: '用户管理', to: '/admin/users', icon: Users },
   { name: '渠道管理', to: '/admin/channels', icon: Network },
-  { name: '兑换码', to: '/admin/redemptions', icon: Ticket },
+  { name: '兑换管理', to: '/admin/redemptions', icon: Ticket },
   { name: '系统设置', to: '/admin/settings', icon: Settings },
 ];
 
