@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API, showError, showSuccess } from '../../helpers';
 import { timestamp2string } from '../../helpers';
@@ -18,6 +19,7 @@ import {
 
 const SubscriptionPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [subscription, setSubscription] = useState(null);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [plans, setPlans] = useState([]);
@@ -83,9 +85,19 @@ const SubscriptionPage = () => {
       }
 
       if (res.data.success) {
-        showSuccess(res.data.message || t('console.subscription.operation_success'));
-        setDialogOpen(false);
-        loadData();
+        if (res.data.data?.need_payment === true) {
+          const orderNo = res.data.data?.order?.order_no;
+          if (orderNo) {
+            setDialogOpen(false);
+            navigate(`/payment/${orderNo}`);
+            return;
+          }
+          showError(t('console.subscription.order_create_failed'));
+        } else {
+          showSuccess(res.data.message || t('console.subscription.operation_success'));
+          setDialogOpen(false);
+          loadData();
+        }
       } else {
         showError(res.data.message);
       }
@@ -113,8 +125,17 @@ const SubscriptionPage = () => {
     try {
       const res = await API.post('/api/subscription/renew');
       if (res.data.success) {
-        showSuccess(t('console.subscription.renew_success'));
-        loadData();
+        if (res.data.data?.need_payment === true) {
+          const orderNo = res.data.data?.order?.order_no;
+          if (orderNo) {
+            navigate(`/payment/${orderNo}`);
+            return;
+          }
+          showError(t('console.subscription.order_create_failed'));
+        } else {
+          showSuccess(t('console.subscription.renew_success'));
+          loadData();
+        }
       } else {
         showError(res.data.message);
       }
