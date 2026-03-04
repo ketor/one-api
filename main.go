@@ -17,8 +17,10 @@ import (
 	"github.com/songquanpeng/one-api/common/i18n"
 	"github.com/songquanpeng/one-api/common/logger"
 	"github.com/songquanpeng/one-api/controller"
+	cronpkg "github.com/songquanpeng/one-api/cron"
 	"github.com/songquanpeng/one-api/middleware"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/payment"
 	"github.com/songquanpeng/one-api/relay/adaptor/openai"
 	"github.com/songquanpeng/one-api/router"
 )
@@ -93,6 +95,15 @@ func main() {
 	}
 	openai.InitTokenEncoders()
 	client.Init()
+
+	// Initialize payment providers
+	payment.Init()
+
+	// Initialize cron scheduler
+	if config.IsMasterNode {
+		cronpkg.InitScheduler()
+		defer cronpkg.StopScheduler()
+	}
 
 	// Initialize i18n
 	if err := i18n.Init(); err != nil {

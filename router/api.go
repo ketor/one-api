@@ -4,6 +4,7 @@ import (
 	"github.com/songquanpeng/one-api/controller"
 	"github.com/songquanpeng/one-api/controller/auth"
 	"github.com/songquanpeng/one-api/middleware"
+	"github.com/songquanpeng/one-api/payment"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -204,6 +205,39 @@ func SetApiRouter(router *gin.Engine) {
 			adminBoosterRoute.POST("/", controller.CreateBoosterPack)
 			adminBoosterRoute.PUT("/", controller.UpdateBoosterPack)
 			adminBoosterRoute.DELETE("/:id", controller.DeleteBoosterPack)
+		}
+
+		// Contact routes (public, with rate limit)
+		apiRouter.POST("/contact", middleware.CriticalRateLimit(), controller.SubmitContactMessage)
+
+		// Admin routes for contact message management
+		adminContactRoute := apiRouter.Group("/admin/contact")
+		adminContactRoute.Use(middleware.AdminAuth())
+		{
+			adminContactRoute.GET("/", controller.GetContactMessages)
+			adminContactRoute.PUT("/:id", controller.UpdateContactStatus)
+		}
+
+		// Payment callback routes (public, no auth required)
+		paymentCallbackRoute := apiRouter.Group("/payment/callback")
+		{
+			paymentCallbackRoute.POST("/wechat", controller.HandleWechatCallback)
+			paymentCallbackRoute.POST("/alipay", controller.HandleAlipayCallback)
+		}
+
+		// Payment routes (user-authenticated)
+		paymentRoute := apiRouter.Group("/payment")
+		paymentRoute.Use(middleware.UserAuth())
+		{
+			paymentRoute.POST("/create", controller.CreatePaymentOrder)
+			paymentRoute.GET("/status/:order_no", controller.GetPaymentStatus)
+			paymentRoute.POST("/cancel/:order_no", controller.CancelPaymentOrder)
+			paymentRoute.GET("/providers", controller.GetAvailableProviders)
+		}
+
+		// Mock payment confirm (only when mock mode enabled)
+		if payment.GetConfig().IsMockEnabled() {
+			apiRouter.POST("/payment/mock/confirm", controller.MockPaymentConfirm)
 		}
 
 		// Admin routes for usage analytics

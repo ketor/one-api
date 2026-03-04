@@ -35,10 +35,12 @@ type Order struct {
 	AmountCents    int64  `json:"amount_cents" gorm:"bigint"`
 	Status         int    `json:"status" gorm:"default:1;index"`
 	PaymentMethod  string `json:"payment_method" gorm:"type:varchar(32)"`
-	PaymentTradeNo string `json:"payment_trade_no" gorm:"type:varchar(128)"`
-	PaidTime       int64  `json:"paid_time" gorm:"bigint;default:0"`
-	CreatedTime    int64  `json:"created_time" gorm:"bigint"`
-	UpdatedTime    int64  `json:"updated_time" gorm:"bigint"`
+	PaymentTradeNo    string `json:"payment_trade_no" gorm:"type:varchar(128)"`
+	RefundAmountCents int64  `json:"refund_amount_cents" gorm:"bigint;default:0"`
+	ExpireTime        int64  `json:"expire_time" gorm:"bigint;default:0"`
+	PaidTime          int64  `json:"paid_time" gorm:"bigint;default:0"`
+	CreatedTime       int64  `json:"created_time" gorm:"bigint"`
+	UpdatedTime       int64  `json:"updated_time" gorm:"bigint"`
 }
 
 func GenerateOrderNo() string {

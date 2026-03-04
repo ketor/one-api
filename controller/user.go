@@ -165,6 +165,13 @@ func Register(c *gin.Context) {
 			return
 		}
 	}
+	if valid, msg := helper.ValidatePassword(user.Password); !valid {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": msg,
+		})
+		return
+	}
 	affCode := user.AffCode // this code is the inviter's code, not the user's own code
 	inviterId, _ := model.GetUserIdByAffCode(affCode)
 	cleanUser := model.User{
@@ -510,6 +517,15 @@ func UpdateSelf(c *gin.Context) {
 		cleanUser.Password = ""
 	}
 	updatePassword := user.Password != ""
+	if updatePassword {
+		if valid, msg := helper.ValidatePassword(user.Password); !valid {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": msg,
+			})
+			return
+		}
+	}
 	if err := cleanUser.Update(updatePassword); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

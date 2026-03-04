@@ -3,15 +3,22 @@ package router
 import (
 	"embed"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/songquanpeng/one-api/common/config"
-	"github.com/songquanpeng/one-api/common/logger"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/songquanpeng/one-api/common/config"
+	"github.com/songquanpeng/one-api/common/logger"
+	"github.com/songquanpeng/one-api/middleware"
 )
 
 func SetRouter(router *gin.Engine, buildFS embed.FS) {
+	// Prometheus metrics endpoint
+	router.GET("/metrics", middleware.MetricsHandler())
+	// HTTP metrics middleware
+	router.Use(middleware.PrometheusMetrics())
+
 	SetApiRouter(router)
 	SetDashboardRouter(router)
 	SetRelayRouter(router)

@@ -86,6 +86,7 @@ func CreatePlan(c *gin.Context) {
 		Name:                   plan.Name,
 		DisplayName:            plan.DisplayName,
 		Description:            plan.Description,
+		Tagline:                plan.Tagline,
 		PriceCentsMonthly:      plan.PriceCentsMonthly,
 		WindowLimitCount:       plan.WindowLimitCount,
 		WindowDurationSec:      plan.WindowDurationSec,
@@ -94,6 +95,10 @@ func CreatePlan(c *gin.Context) {
 		OverageRateType:        plan.OverageRateType,
 		AllowedModels:          plan.AllowedModels,
 		GroupName:              plan.GroupName,
+		Features:               plan.Features,
+		CtaText:                plan.CtaText,
+		IsFeatured:             plan.IsFeatured,
+		IsContactSales:         plan.IsContactSales,
 		Priority:               plan.Priority,
 		Status:                 plan.Status,
 	}
@@ -146,6 +151,7 @@ func UpdatePlan(c *gin.Context) {
 	cleanPlan.Name = plan.Name
 	cleanPlan.DisplayName = plan.DisplayName
 	cleanPlan.Description = plan.Description
+	cleanPlan.Tagline = plan.Tagline
 	cleanPlan.PriceCentsMonthly = plan.PriceCentsMonthly
 	cleanPlan.WindowLimitCount = plan.WindowLimitCount
 	cleanPlan.WindowDurationSec = plan.WindowDurationSec
@@ -154,6 +160,10 @@ func UpdatePlan(c *gin.Context) {
 	cleanPlan.OverageRateType = plan.OverageRateType
 	cleanPlan.AllowedModels = plan.AllowedModels
 	cleanPlan.GroupName = plan.GroupName
+	cleanPlan.Features = plan.Features
+	cleanPlan.CtaText = plan.CtaText
+	cleanPlan.IsFeatured = plan.IsFeatured
+	cleanPlan.IsContactSales = plan.IsContactSales
 	cleanPlan.Priority = plan.Priority
 	cleanPlan.Status = plan.Status
 	cleanPlan.UpdatedTime = helper.GetTimestamp()
