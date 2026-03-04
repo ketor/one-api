@@ -160,8 +160,10 @@ func GetPaymentStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"paid":   false,
-			"status": status,
+			"paid":         false,
+			"status":       status,
+			"order_no":     order.OrderNo,
+			"amount_cents": order.AmountCents,
 		},
 	})
 }

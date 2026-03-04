@@ -110,8 +110,8 @@ func CreateSubscription(c *gin.Context) {
 		return
 	}
 
-	// Free plan or mock mode: direct activation
-	if plan.PriceCentsMonthly == 0 || payment.GetConfig().IsMockEnabled() {
+	// Free plan: direct activation
+	if plan.PriceCentsMonthly == 0 {
 		order.PaymentMethod = "admin"
 		_ = model.UpdateOrderPayment(order.Id, "admin", "")
 		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
@@ -265,8 +265,8 @@ func UpgradeSubscription(c *gin.Context) {
 		return
 	}
 
-	// Free upgrade (amount=0) or mock mode: direct activation
-	if amountCents == 0 || payment.GetConfig().IsMockEnabled() {
+	// Free upgrade (amount=0): direct activation
+	if amountCents == 0 {
 		_ = model.UpdateOrderPayment(order.Id, "admin", "")
 		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
 		if err != nil {
@@ -483,8 +483,8 @@ func RenewSubscription(c *gin.Context) {
 		return
 	}
 
-	// Free plan or mock mode: direct activation
-	if plan.PriceCentsMonthly == 0 || payment.GetConfig().IsMockEnabled() {
+	// Free plan: direct activation
+	if plan.PriceCentsMonthly == 0 {
 		_ = model.UpdateOrderPayment(order.Id, "admin", "")
 		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
 		if err != nil {

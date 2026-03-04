@@ -79,6 +79,14 @@ const PaymentPage = () => {
     };
   }, [status, orderNo, startPolling]);
 
+  // Auto-redirect on success
+  useEffect(() => {
+    if (status === 'success') {
+      const timer = setTimeout(() => navigate('/subscription'), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status, navigate]);
+
   const handlePay = async () => {
     try {
       const res = await API.post('/api/payment/create', {
@@ -86,9 +94,31 @@ const PaymentPage = () => {
         payment_method: method,
       });
       if (res.data.success) {
-        setQrUrl(res.data.data.qr_code_url);
-        setStatus('paying');
-        setCountdown(30 * 60);
+        const codeUrl = res.data.data.code_url || res.data.data.qr_code_url;
+        if (codeUrl && codeUrl.startsWith('mock://')) {
+          // Mock mode: show mock confirm UI instead of QR code
+          setQrUrl(codeUrl);
+          setStatus('mock_confirm');
+        } else {
+          setQrUrl(codeUrl);
+          setStatus('paying');
+          setCountdown(30 * 60);
+        }
+      } else {
+        showError(res.data.message);
+      }
+    } catch (err) {
+      showError(err.message);
+    }
+  };
+
+  const handleMockConfirm = async () => {
+    try {
+      const res = await API.post('/api/payment/mock/confirm', {
+        order_no: orderNo,
+      });
+      if (res.data.success) {
+        setStatus('success');
       } else {
         showError(res.data.message);
       }
@@ -164,6 +194,15 @@ const PaymentPage = () => {
               <span className='text-2xl block mb-1'>💰</span>
               <span className='text-sm'>{t('payment.alipay')}</span>
             </button>
+            <button
+              onClick={() => setMethod('mock')}
+              className={`p-4 border rounded text-center transition-colors ${
+                method === 'mock' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <span className='text-2xl block mb-1'>🧪</span>
+              <span className='text-sm'>{t('payment.mock_pay', '模拟支付')}</span>
+            </button>
           </div>
           <Button onClick={handlePay} className='w-full'>
             {t('payment.confirm_pay')}
@@ -186,12 +225,27 @@ const PaymentPage = () => {
         </div>
       )}
 
+      {/* Mock payment confirm */}
+      {status === 'mock_confirm' && (
+        <div className='flex flex-col items-center py-8'>
+          <div className='p-4 border border-dashed border-primary/50 rounded-lg mb-6 text-center'>
+            <p className='text-sm text-muted-foreground mb-1'>{t('payment.mock_mode', '开发环境 - 模拟支付')}</p>
+            <p className='text-lg font-medium'>¥{order ? (order.amount_cents || 0) / 100 : 0}</p>
+          </div>
+          <Button onClick={handleMockConfirm} className='w-full max-w-xs'>
+            {t('payment.mock_confirm_btn', '确认模拟支付')}
+          </Button>
+          <p className='text-xs text-muted-foreground mt-3'>{t('payment.mock_hint', '点击按钮将模拟支付成功')}</p>
+        </div>
+      )}
+
       {/* Success */}
       {status === 'success' && (
         <div className='flex flex-col items-center py-8'>
           <CheckCircle className='h-16 w-16 text-green-500 mb-4' />
           <h2 className='text-xl font-medium mb-2'>{t('payment.success')}</h2>
-          <p className='text-sm text-muted-foreground mb-6'>{t('payment.success_desc')}</p>
+          <p className='text-sm text-muted-foreground mb-2'>{t('payment.success_desc')}</p>
+          <p className='text-xs text-muted-foreground mb-6'>{t('payment.auto_redirect', '3秒后自动跳转...')}</p>
           <Button onClick={() => navigate('/subscription')}>
             {t('payment.view_subscription')}
           </Button>
