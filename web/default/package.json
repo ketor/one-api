@@ -1,7 +1,7 @@
 {
   "name": "react-template",
   "version": "0.1.0",
-  "homepage": "/alaya-code-ui/",
+  "homepage": "/",
   "private": true,
   "dependencies": {
     "@craco/craco": "^7.1.0",
