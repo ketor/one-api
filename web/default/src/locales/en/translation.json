@@ -1967,6 +1967,11 @@
     "amount": "Amount",
     "order_no": "Order No.",
     "back_to_billing": "Back to Billing",
-    "view_subscription": "View Subscription"
+    "view_subscription": "View Subscription",
+    "mock_pay": "Mock Payment",
+    "mock_mode": "Development - Mock Payment",
+    "mock_confirm_btn": "Confirm Mock Payment",
+    "mock_hint": "Click the button to simulate a successful payment",
+    "auto_redirect": "Redirecting in 3 seconds..."
   }
 }

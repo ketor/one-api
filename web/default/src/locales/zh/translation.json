@@ -1963,6 +1963,11 @@
     "amount": "支付金额",
     "order_no": "订单号",
     "back_to_billing": "返回账单",
-    "view_subscription": "查看订阅"
+    "view_subscription": "查看订阅",
+    "mock_pay": "模拟支付",
+    "mock_mode": "开发环境 - 模拟支付",
+    "mock_confirm_btn": "确认模拟支付",
+    "mock_hint": "点击按钮将模拟支付成功",
+    "auto_redirect": "3秒后自动跳转..."
   }
 }
