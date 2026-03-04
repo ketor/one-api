@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { API } from '../../helpers';
+import { UserContext } from '../../context/User';
 import { BlurText, FadeIn, StaggerIn } from '../../components/animations';
 
 const formatPrice = (cents) => {
@@ -39,9 +40,11 @@ const buildFeatures = (plan, t) => {
 
 const PricingPage = () => {
   const { t } = useTranslation();
+  const [userState] = useContext(UserContext);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentSub, setCurrentSub] = useState(null);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -61,20 +64,56 @@ const PricingPage = () => {
       setLoading(false);
     };
     fetchPlans();
-  }, []);
+    // Fetch current subscription if logged in
+    if (userState.user) {
+      API.get('/api/subscription/self')
+        .then((res) => {
+          if (res.data.success && res.data.data) {
+            setCurrentSub(res.data.data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [userState.user]);
+
+  const currentPlanPriority = currentSub ? plans.find(p => p.id === currentSub.plan_id)?.priority : -1;
 
   const planCards = plans.map((plan) => {
     const price = formatPrice(plan.price_cents_monthly);
-    const highlighted = plan.name === 'pro';
+    const isContact = plan.is_contact_sales;
+    const highlighted = plan.is_featured || plan.name === 'pro';
+    const features = (() => { try { return JSON.parse(plan.features || '[]'); } catch { return buildFeatures(plan, t); } })();
+    const isCurrent = currentSub && currentSub.plan_id === plan.id;
+
+    let cta, ctaLink;
+    if (isContact) {
+      cta = plan.cta_text || t('pricing.plans.contact_us');
+      ctaLink = '/contact';
+    } else if (isCurrent) {
+      cta = t('pricing.current_plan');
+      ctaLink = '/subscription';
+    } else if (currentSub && currentPlanPriority !== undefined && plan.priority > currentPlanPriority) {
+      cta = t('pricing.upgrade');
+      ctaLink = '/subscription';
+    } else if (currentSub && currentPlanPriority !== undefined && plan.priority < currentPlanPriority) {
+      cta = t('pricing.downgrade');
+      ctaLink = '/subscription';
+    } else {
+      cta = plan.cta_text || (price ? t('pricing.plans.get_started') : t('pricing.plans.free_register'));
+      ctaLink = '/register';
+    }
+
     return {
       id: plan.id,
       name: plan.display_name || plan.name,
-      description: plan.description || '',
-      price: price || t('pricing.plans.free'),
-      priceSuffix: price ? t('pricing.plans.per_month') : '',
-      features: buildFeatures(plan, t),
-      cta: price ? t('pricing.plans.get_started') : t('pricing.plans.free_register'),
+      description: plan.tagline || plan.description || '',
+      price: isContact ? t('pricing.plans.contact_us') : (price || t('pricing.plans.free')),
+      priceSuffix: (!isContact && price) ? t('pricing.plans.per_month') : '',
+      features: features.length > 0 ? features : buildFeatures(plan, t),
+      cta,
+      ctaLink,
       highlighted,
+      isCurrent,
     };
   });
 
@@ -211,11 +250,13 @@ const PricingPage = () => {
                     ))}
                   </ul>
                   <Link
-                    to='/register'
+                    to={plan.ctaLink}
                     className={`block w-full text-center text-sm font-light h-10 leading-10 no-underline transition-colors ${
-                      plan.highlighted
-                        ? 'bg-xyz-blue-6 text-white hover:bg-[#3451e6]'
-                        : 'border border-xyz-white-3 text-white hover:border-xyz-white-5'
+                      plan.isCurrent
+                        ? 'border border-xyz-white-3 text-xyz-white-5 cursor-default'
+                        : plan.highlighted
+                          ? 'bg-xyz-blue-6 text-white hover:bg-[#3451e6]'
+                          : 'border border-xyz-white-3 text-white hover:border-xyz-white-5'
                     }`}
                   >
                     {plan.cta}

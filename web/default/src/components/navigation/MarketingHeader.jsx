@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ThemeToggle from '../ThemeToggle';
 
 const MarketingHeader = () => {
   const { t, i18n } = useTranslation();
@@ -41,8 +42,11 @@ const MarketingHeader = () => {
         </nav>
       </div>
 
-      {/* Right: Lang + Auth */}
+      {/* Right: Theme + Lang + Auth */}
       <div className='flex items-center h-16'>
+        <div className='flex items-center px-3'>
+          <ThemeToggle />
+        </div>
         <button
           onClick={toggleLanguage}
           className='flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-xyz-white-8 text-sm font-mono font-light px-4 h-full transition-colors hover:text-white'

@@ -1279,6 +1279,7 @@
     "privacy": "Privacy Policy",
     "support": "Support",
     "help_center": "Help Center",
+    "contact_us": "Contact Us",
     "copyright": "DataCanvas Alaya NeW. All rights reserved."
   },
   "marketing": {
@@ -1358,9 +1359,13 @@
       "description": "Start free, upgrade as you grow. All plans include OpenAI-compatible API access with seamless AI tool integration."
     },
     "badge_recommended": "Recommended",
+    "current_plan": "Current Plan",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
     "plans": {
       "lite_desc": "For learning and light usage",
       "free": "Free",
+      "contact_us": "Contact Us",
       "per_month": "/mo",
       "lite_f1": "Basic model access (Kimi, Qwen, etc.)",
       "lite_f2": "5h window limit: 10 requests",
@@ -1922,5 +1927,46 @@
     "s9_p1": "The Service is not intended for individuals under 16 years of age. We do not knowingly collect personal information from minors. If you discover that a minor has used our Service, please contact us so we can delete the relevant information.",
     "s10_title": "10. Policy Changes & Contact",
     "s10_p1": "We may update this Privacy Policy from time to time. Material changes will be notified through website announcements or email. Continued use of the Service constitutes acceptance of the updated policy. For privacy-related questions, please submit a ticket through the console or email us at privacy@alayanew.com."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have questions or suggestions? Feel free to reach out",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "success": "Message sent successfully. We'll get back to you soon",
+    "success_title": "Submitted",
+    "validation_required": "Name and message are required",
+    "wechat_service": "WeChat Support",
+    "wechat_desc": "Scan the QR code to add our WeChat support",
+    "email_us": "Email Us",
+    "working_hours": "Working Hours",
+    "hours_detail": "Monday - Friday, 9:00 AM - 6:00 PM (CST)"
+  },
+  "theme": {
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "payment": {
+    "title": "Payment",
+    "select_method": "Select Payment Method",
+    "wechat_pay": "WeChat Pay",
+    "alipay": "Alipay",
+    "confirm_pay": "Confirm Payment",
+    "scan_to_pay": "Scan the QR code to pay",
+    "waiting": "Waiting for payment...",
+    "success": "Payment Successful",
+    "success_desc": "Your subscription has been activated",
+    "timeout": "Payment timed out, please try again",
+    "retry": "Retry Payment",
+    "error": "Failed to load order information",
+    "amount": "Amount",
+    "order_no": "Order No.",
+    "back_to_billing": "Back to Billing",
+    "view_subscription": "View Subscription"
   }
 }

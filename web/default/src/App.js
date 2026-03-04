@@ -17,6 +17,7 @@ const LandingPage = lazy(() => import('./pages/marketing/LandingPage'));
 const PricingPage = lazy(() => import('./pages/marketing/PricingPage'));
 const TermsPage = lazy(() => import('./pages/marketing/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/marketing/PrivacyPage'));
+const ContactPage = lazy(() => import('./pages/marketing/ContactPage'));
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 
@@ -45,6 +46,7 @@ const UsagePage = lazy(() => import('./pages/console/UsagePage'));
 const BillingPage = lazy(() => import('./pages/console/BillingPage'));
 const BoosterPage = lazy(() => import('./pages/console/BoosterPage'));
 const SettingsPage = lazy(() => import('./pages/console/SettingsPage'));
+const PaymentPage = lazy(() => import('./pages/PaymentPage'));
 const Token = lazy(() => import('./pages/Token'));
 const EditToken = lazy(() => import('./pages/Token/EditToken'));
 const TopUp = lazy(() => import('./pages/TopUp'));
@@ -139,6 +141,7 @@ function App() {
           <Route path='/pricing' element={<PricingPage />} />
           <Route path='/terms' element={<TermsPage />} />
           <Route path='/privacy' element={<PrivacyPage />} />
+          <Route path='/contact' element={<ContactPage />} />
           <Route path='/home' element={<Home />} />
           <Route path='/about' element={<About />} />
         </Route>
@@ -179,6 +182,7 @@ function App() {
           <Route path='/subscription' element={<SubscriptionPage />} />
           <Route path='/usage' element={<UsagePage />} />
           <Route path='/billing' element={<BillingPage />} />
+          <Route path='/payment/:orderNo' element={<PaymentPage />} />
           <Route path='/booster' element={<BoosterPage />} />
           <Route path='/topup' element={<TopUp />} />
           <Route path='/log' element={<Log />} />

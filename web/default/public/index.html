@@ -13,6 +13,15 @@
     <title>Alaya Code - Alaya NeW</title>
   </head>
   <body>
+    <script>
+      // Apply saved theme before React renders to prevent flash
+      (function() {
+        var t = localStorage.getItem('theme') || 'auto';
+        if (t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

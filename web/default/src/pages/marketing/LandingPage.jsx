@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
+import { API } from '../../helpers';
 import { BlurText, FadeIn, StaggerIn, PixelCard, PixelBlast, SvgParticleMorph } from '../../components/animations';
 
 /* ── Tool brand logos (official Simple Icons SVG paths) ── */
@@ -120,6 +122,19 @@ const featureParticleShapes = [
 const LandingPage = () => {
   const { t } = useTranslation();
   const [activeFeature, setActiveFeature] = useState(0);
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+
+  useEffect(() => {
+    API.get('/api/plan/')
+      .then((res) => {
+        if (res.data.success) {
+          setPlans((res.data.data || []).sort((a, b) => (a.priority || 0) - (b.priority || 0)));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPlansLoading(false));
+  }, []);
 
   const models = [
     {
@@ -263,6 +278,11 @@ const LandingPage = () => {
                 </p>
               </FadeIn>
             </FadeIn>
+            {plansLoading ? (
+              <div className='flex justify-center py-20'>
+                <Loader2 className='h-8 w-8 animate-spin text-xyz-gray-5' />
+              </div>
+            ) : (
             <StaggerIn
               staggerDelay={0.1}
               direction='up'
@@ -270,95 +290,68 @@ const LandingPage = () => {
               className='grid grid-cols-4 mx-auto'
               style={{ gap: '20px' }}
             >
-              {[
-                {
-                  tier: 'GLOW',
-                  price: '免费',
-                  priceNote: '',
-                  desc: '个人开发者入门',
-                  features: ['5 个模型可用', '100 次/天调用', '社区支持'],
-                  cta: '免费注册',
-                  ctaStyle: 'border',
-                  highlight: false,
-                },
-                {
-                  tier: 'STAR',
-                  price: '¥99',
-                  priceNote: '/月',
-                  desc: '独立开发者进阶',
-                  features: ['20+ 模型可用', '5,000 次/天调用', '邮件支持'],
-                  cta: '开始使用',
-                  ctaStyle: 'border',
-                  highlight: false,
-                },
-                {
-                  tier: 'SOLAR',
-                  price: '¥299',
-                  priceNote: '/月',
-                  desc: '团队协作首选',
-                  features: ['全部模型可用', '50,000 次/天调用', '专属客服'],
-                  cta: '立即升级',
-                  ctaStyle: 'fill',
-                  highlight: true,
-                  badge: '推荐',
-                },
-                {
-                  tier: 'GALAXY',
-                  price: '联系我们',
-                  priceNote: '',
-                  desc: '企业级定制方案',
-                  features: ['无限模型 & 调用', '私有化部署', 'SLA 保障'],
-                  cta: '联系销售',
-                  ctaStyle: 'border',
-                  highlight: false,
-                },
-              ].map((plan) => (
-                <div
-                  key={plan.tier}
-                  className={`p-6 transition-all duration-300 ${
-                    plan.highlight
-                      ? 'border border-xyz-blue-6 bg-[rgba(67,98,255,0.05)]'
-                      : 'border border-xyz-gray-3 hover:border-xyz-gray-5 hover:bg-xyz-gray-1'
-                  }`}
-                >
-                  {plan.badge && (
-                    <span className='inline-block text-xs font-medium text-xyz-blue-6 border border-xyz-blue-6/30 px-2 py-0.5 mb-3'>
-                      {plan.badge}
-                    </span>
-                  )}
-                  <h3 className='mb-1'>
-                    <span className='text-xs font-light text-xyz-gray-5 tracking-wider'>ALAYA CODE</span>
-                    <br />
-                    <span className='text-2xl font-medium text-xyz-gray-10'>{plan.tier}</span>
-                  </h3>
-                  <p className='text-sm font-light text-xyz-gray-6 mb-4'>{plan.desc}</p>
-                  <div className='mb-6'>
-                    <span className='text-3xl font-medium text-xyz-gray-10'>{plan.price}</span>
-                    {plan.priceNote && (
-                      <span className='text-sm font-light text-xyz-gray-6 ml-1'>{plan.priceNote}</span>
-                    )}
-                  </div>
-                  <ul className='space-y-3 mb-8 list-none p-0'>
-                    {plan.features.map((f, i) => (
-                      <li key={i} className='flex items-center gap-2 text-sm font-light text-xyz-gray-7'>
-                        <span className='w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0' />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    to='/register'
-                    className={`block w-full text-center text-sm font-light h-10 leading-10 no-underline transition-colors ${
-                      plan.ctaStyle === 'fill'
-                        ? 'bg-xyz-blue-6 text-white hover:bg-[#3451e6]'
-                        : 'border border-xyz-gray-4 text-xyz-gray-10 hover:border-xyz-gray-7'
+              {plans.map((plan) => {
+                const features = (() => { try { return JSON.parse(plan.features || '[]'); } catch { return []; } })();
+                const isContact = plan.is_contact_sales;
+                const isFree = plan.price_cents_monthly === 0 && !isContact;
+                const price = isContact
+                  ? t('pricing.plans.contact_us')
+                  : isFree
+                    ? t('pricing.plans.free')
+                    : `¥${plan.price_cents_monthly / 100}`;
+                const priceNote = (!isContact && !isFree) ? t('pricing.plans.per_month') : '';
+                const ctaText = plan.cta_text || (isFree ? t('pricing.plans.free_register') : t('pricing.plans.get_started'));
+                const ctaLink = isContact ? '/contact' : '/register';
+
+                return (
+                  <div
+                    key={plan.id}
+                    className={`p-6 transition-all duration-300 ${
+                      plan.is_featured
+                        ? 'border border-xyz-blue-6 bg-[rgba(67,98,255,0.05)]'
+                        : 'border border-xyz-gray-3 hover:border-xyz-gray-5 hover:bg-xyz-gray-1'
                     }`}
                   >
-                    {plan.cta}
-                  </Link>
-                </div>
-              ))}
+                    {plan.is_featured && (
+                      <span className='inline-block text-xs font-medium text-xyz-blue-6 border border-xyz-blue-6/30 px-2 py-0.5 mb-3'>
+                        {t('pricing.badge_recommended')}
+                      </span>
+                    )}
+                    <h3 className='mb-1'>
+                      <span className='text-xs font-light text-xyz-gray-5 tracking-wider'>ALAYA CODE</span>
+                      <br />
+                      <span className='text-2xl font-medium text-xyz-gray-10'>{plan.display_name || plan.name}</span>
+                    </h3>
+                    <p className='text-sm font-light text-xyz-gray-6 mb-4'>{plan.tagline || plan.description}</p>
+                    <div className='mb-6'>
+                      <span className='text-3xl font-medium text-xyz-gray-10'>{price}</span>
+                      {priceNote && (
+                        <span className='text-sm font-light text-xyz-gray-6 ml-1'>{priceNote}</span>
+                      )}
+                    </div>
+                    <ul className='space-y-3 mb-8 list-none p-0'>
+                      {features.map((f, i) => (
+                        <li key={i} className='flex items-center gap-2 text-sm font-light text-xyz-gray-7'>
+                          <span className='w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0' />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      to={ctaLink}
+                      className={`block w-full text-center text-sm font-light h-10 leading-10 no-underline transition-colors ${
+                        plan.is_featured
+                          ? 'bg-xyz-blue-6 text-white hover:bg-[#3451e6]'
+                          : 'border border-xyz-gray-4 text-xyz-gray-10 hover:border-xyz-gray-7'
+                      }`}
+                    >
+                      {ctaText}
+                    </Link>
+                  </div>
+                );
+              })}
             </StaggerIn>
+            )}
             <FadeIn delay={0.3} className='mt-10 text-center'>
               <Link
                 to='/pricing'

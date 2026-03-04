@@ -1275,6 +1275,7 @@
     "privacy": "隐私政策",
     "support": "支持",
     "help_center": "帮助中心",
+    "contact_us": "联系我们",
     "copyright": "九章云极 DataCanvas. All rights reserved."
   },
   "marketing": {
@@ -1354,9 +1355,13 @@
       "description": "从免费开始，按需升级。所有套餐均包含 OpenAI 兼容 API 接口，支持主流 AI 编程工具无缝接入。"
     },
     "badge_recommended": "推荐",
+    "current_plan": "当前方案",
+    "upgrade": "升级",
+    "downgrade": "降级",
     "plans": {
       "lite_desc": "适合个人学习和轻度使用",
       "free": "免费",
+      "contact_us": "联系我们",
       "per_month": "/月",
       "lite_f1": "基础模型访问（Kimi、Qwen 等）",
       "lite_f2": "5h 窗口限额：10 次请求",
@@ -1918,5 +1923,46 @@
     "s9_p1": "本服务不面向 16 周岁以下的未成年人。我们不会故意收集未成年人的个人信息。如果您发现未成年人使用了我们的服务，请联系我们以便删除相关信息。",
     "s10_title": "10. 政策变更与联系方式",
     "s10_p1": "我们可能不时更新本隐私政策。重大变更将通过网站公告或邮件通知。继续使用本服务即表示接受更新后的政策。如有隐私相关问题，请通过控制台提交工单或发送邮件至 privacy@alayanew.com 联系我们。"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "有任何问题或建议，请随时联系我们",
+    "name": "姓名",
+    "email": "邮箱",
+    "phone": "手机号",
+    "message": "留言内容",
+    "submit": "发送消息",
+    "submitting": "发送中...",
+    "success": "消息已发送，我们会尽快回复您",
+    "success_title": "提交成功",
+    "validation_required": "姓名和留言内容为必填项",
+    "wechat_service": "微信客服",
+    "wechat_desc": "扫描二维码添加微信客服",
+    "email_us": "邮箱联系",
+    "working_hours": "工作时间",
+    "hours_detail": "周一至周五 9:00-18:00"
+  },
+  "theme": {
+    "auto": "跟随系统",
+    "light": "亮色模式",
+    "dark": "暗色模式"
+  },
+  "payment": {
+    "title": "订单支付",
+    "select_method": "选择支付方式",
+    "wechat_pay": "微信支付",
+    "alipay": "支付宝",
+    "confirm_pay": "确认支付",
+    "scan_to_pay": "请使用手机扫码支付",
+    "waiting": "等待支付...",
+    "success": "支付成功",
+    "success_desc": "您的订阅已激活",
+    "timeout": "支付超时，请重试",
+    "retry": "重新支付",
+    "error": "订单信息获取失败",
+    "amount": "支付金额",
+    "order_no": "订单号",
+    "back_to_billing": "返回账单",
+    "view_subscription": "查看订阅"
   }
 }

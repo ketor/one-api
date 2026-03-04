@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Globe, LogOut, Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SidebarNav } from './ConsoleSidebar';
+import ThemeToggle from '../ThemeToggle';
 
 const ConsoleTopBar = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -54,6 +55,7 @@ const ConsoleTopBar = () => {
         </SheetContent>
       </Sheet>
       <div className='flex-1' />
+      <ThemeToggle />
       <Button variant='ghost' size='sm' onClick={toggleLanguage} className='gap-1'>
         <Globe className='h-4 w-4' />
         <span className='text-xs'>{i18n.language === 'zh' ? 'EN' : '中文'}</span>

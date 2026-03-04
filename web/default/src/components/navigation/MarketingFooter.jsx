@@ -80,6 +80,11 @@ const MarketingFooter = () => {
                   {t('marketing_footer.help_center')}
                 </Link>
               </li>
+              <li>
+                <Link to='/contact' className='text-sm font-light text-xyz-white-5 no-underline transition-colors hover:text-white'>
+                  {t('marketing_footer.contact_us')}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

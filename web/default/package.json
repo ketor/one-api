@@ -34,6 +34,7 @@
     "motion": "^12.34.5",
     "postcss": "^8.5.8",
     "postprocessing": "^6.38.3",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",

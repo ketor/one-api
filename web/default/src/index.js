@@ -7,6 +7,7 @@ import { UserProvider } from './context/User';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { StatusProvider } from './context/Status';
+import { ThemeProvider } from './context/Theme';
 import { SubscriptionProvider } from './context/Subscription';
 import { UsageProvider } from './context/Usage';
 import { BillingProvider } from './context/Billing';
@@ -21,6 +22,7 @@ window.addEventListener('error', (e) => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <ThemeProvider>
     <StatusProvider>
       <UserProvider>
         <SubscriptionProvider>
@@ -37,5 +39,6 @@ root.render(
         </SubscriptionProvider>
       </UserProvider>
     </StatusProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
