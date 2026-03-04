@@ -4,66 +4,79 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 215 100% 54.3%;
+    /* === XYZ Cloud Design Tokens === */
+
+    /* Blue gradient */
+    --color-blue-1: #f0f5ff;
+    --color-blue-2: #e6edff;
+    --color-blue-3: #bdceff;
+    --color-blue-4: #94adff;
+    --color-blue-5: #6b89ff;
+    --color-blue-6: #4362ff;
+    --color-blue-7: #2e44d9;
+    --color-blue-8: #1d2cb3;
+    --color-blue-9: #0f188c;
+    --color-blue-10: #0a0d66;
+
+    /* Gray gradient */
+    --color-gray-1: #f8fafc;
+    --color-gray-2: #f1f5f9;
+    --color-gray-3: #e1e7ef;
+    --color-gray-4: #c8d5e5;
+    --color-gray-5: #9eacbf;
+    --color-gray-6: #65758b;
+    --color-gray-7: #48566a;
+    --color-gray-8: #344256;
+    --color-gray-9: #0f1728;
+    --color-gray-10: #090e1a;
+    --color-gray-11: #060a10;
+
+    /* White transparency gradient */
+    --color-white-1: rgba(255, 255, 255, 0.08);
+    --color-white-2: rgba(255, 255, 255, 0.10);
+    --color-white-3: rgba(255, 255, 255, 0.20);
+    --color-white-4: rgba(255, 255, 255, 0.30);
+    --color-white-5: rgba(255, 255, 255, 0.40);
+    --color-white-6: rgba(255, 255, 255, 0.50);
+    --color-white-7: rgba(255, 255, 255, 0.60);
+    --color-white-8: rgba(255, 255, 255, 0.80);
+    --color-white-9: rgba(255, 255, 255, 0.90);
+    --color-white-10: #ffffff;
+
+    /* Orange accent */
+    --color-orange-6: #ff8400;
+
+    /* === Shadcn semantic tokens (dark-first, XYZ style) === */
+    --background: 228 40% 6.5%;
+    --foreground: 0 0% 100%;
+    --card: 225 33% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 225 33% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 231 100% 63%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 100% 96%;
-    --secondary-foreground: 215 100% 54.3%;
-    --muted: 214 100% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 214 100% 96%;
-    --accent-foreground: 215 100% 54.3%;
-    --destructive: 359 100% 65.1%;
+    --secondary: 228 30% 14%;
+    --secondary-foreground: 0 0% 80%;
+    --muted: 228 30% 14%;
+    --muted-foreground: 215 16% 55%;
+    --accent: 228 30% 14%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 215 100% 54.3%;
-    --radius: 0.5rem;
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.10;
+    --ring: 231 100% 63%;
+    --radius: 0px;
 
-    --sidebar-background: 209 100% 8%;
+    /* Sidebar */
+    --sidebar-background: 228 45% 5%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 215 100% 54.3%;
+    --sidebar-primary: 231 100% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 209 80% 12%;
+    --sidebar-accent: 228 30% 10%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 209 50% 15%;
-    --sidebar-ring: 215 100% 54.3%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 215 100% 54.3%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 359 100% 65.1%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 215 100% 54.3%;
-
-    --sidebar-background: 209 100% 6%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 215 100% 54.3%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 209 80% 12%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 209 50% 15%;
-    --sidebar-ring: 215 100% 54.3%;
+    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-ring: 231 100% 63%;
   }
 }
 
@@ -76,10 +89,13 @@
 body {
     margin: 0;
     overflow-y: scroll;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Microsoft YaHei', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    font-weight: 300;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scrollbar-width: none;
+    background: #090e1a;
+    color: white;
 }
 
 body::-webkit-scrollbar {
@@ -87,7 +103,7 @@ body::-webkit-scrollbar {
 }
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: 'Courier Prime', 'JetBrains Mono', monospace;
 }
 
 @media only screen and (max-width: 600px) {
@@ -96,35 +112,172 @@ code {
     }
 }
 
-/* Ensure react-toastify toast notifications are always visible above all layers.
-   Tailwind's preflight (base reset) can interfere with third-party component
-   styles. Force high z-index so toasts are not hidden behind modals, layouts,
-   or other stacking contexts. */
+/* === Toast (XYZ dark style) === */
 .Toastify__toast-container {
   z-index: 99999 !important;
 }
 
 .Toastify__toast {
-  color: inherit !important;
-  background: #fff !important;
+  color: #fff !important;
+  background: #0f1728 !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 300 !important;
 }
 
 .Toastify__toast--success {
-  background: #52c41a !important;
-  color: #fff !important;
+  border-left: 3px solid #52c41a !important;
 }
 
 .Toastify__toast--error {
-  background: #ff4d4f !important;
-  color: #fff !important;
+  border-left: 3px solid #ff4d4f !important;
 }
 
 .Toastify__toast--info {
-  background: #1677ff !important;
-  color: #fff !important;
+  border-left: 3px solid #4362ff !important;
 }
 
 .Toastify__toast--warning {
-  background: #faad14 !important;
-  color: #fff !important;
+  border-left: 3px solid #faad14 !important;
+}
+
+/* === XYZ-style section borders with cross markers (DARK) === */
+.xyz-section-inner {
+  position: relative;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.xyz-section-inner::before,
+.xyz-section-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 11px;
+  height: 11px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)) center/1px 100% no-repeat,
+    linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)) center/100% 1px no-repeat;
+}
+
+.xyz-section-inner::before { left: -6px; }
+.xyz-section-inner::after { right: -6px; }
+
+/* === XYZ-style section borders with cross markers (LIGHT) === */
+.xyz-section-light {
+  background: white;
+}
+
+.xyz-section-light-inner {
+  position: relative;
+  border-left: 1px solid #e1e7ef;
+  border-right: 1px solid #e1e7ef;
+  border-bottom: 1px solid #e1e7ef;
+}
+
+.xyz-section-light-inner::before,
+.xyz-section-light-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 11px;
+  height: 11px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(#090e1a, #090e1a) center/1px 100% no-repeat,
+    linear-gradient(#090e1a, #090e1a) center/100% 1px no-repeat;
+}
+
+.xyz-section-light-inner::before { left: -6px; }
+.xyz-section-light-inner::after { right: -6px; }
+
+/* === CSS Rain background (adapted from uiverse.io/SelfMadeSystem/sweet-dolphin-36, MIT) === */
+/* Color: brand blue #4362ff / #6b89ff instead of green */
+.hero-rain {
+  --c: #4362ff;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-color: transparent;
+  background-image:
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px),
+    radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, var(--c) 2px, #0000 3px);
+  background-size:
+    4% 162px, 4% 187px, 4% 138px,
+    4% 120px, 4% 156px, 4% 284px,
+    4% 226px, 4% 175px, 4% 109px,
+    4% 284px, 4% 213px, 4% 107px;
+  opacity: 0.12;
+  animation: hero-rain 120s linear infinite;
+}
+
+
+/* === PixelCard (react-bits) — override fixed sizing for full-width sections === */
+.pixel-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: auto;
+  aspect-ratio: unset;
+  border-radius: 0;
+  isolation: isolate;
+  user-select: none;
+  outline: none;
+}
+
+/* === Feature menu left indicator === */
+.feature-menu-list {
+  margin-left: -20px;
+}
+.feature-menu-item {
+  position: relative;
+  padding-left: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.feature-menu-item::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+.feature-menu-item.active::before {
+  background: #4362ff;
+}
+
+@keyframes hero-rain {
+  0% {
+    background-position:
+      0px 153px, 25px 66px, 50px 2px,
+      75px 20px, 100px 8px, 125px 229px,
+      150px 119px, 175px 84px, 200px 47px,
+      225px 180px, 250px 146px, 275px 24px;
+  }
+  100% {
+    background-position:
+      0px 10197px, 25px 13156px, 50px 6764px,
+      75px 8780px, 100px 8432px, 125px 20109px,
+      150px 6673px, 175px 10934px, 200px 3099px,
+      225px 11540px, 250px 15908px, 275px 7942px;
+  }
 }

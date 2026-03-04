@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../ui/button';
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,43 +10,61 @@ const MarketingHeader = () => {
   };
 
   return (
-    <header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-      <div className='container mx-auto flex h-14 max-w-screen-xl items-center px-4'>
-        <Link to='/' className='mr-6 flex items-center space-x-2'>
-          <img src='/logo.svg' alt='Alaya Code' className='h-8' />
+    <header className='fixed top-0 left-0 w-full h-16 flex items-center justify-between px-20 bg-xyz-gray-10 z-[999]'>
+      {/* Left: Logo + Nav */}
+      <div className='flex items-center gap-20'>
+        <Link to='/' className='flex items-center gap-1 no-underline'>
+          <img src='/logo.svg' alt='Alaya Code' className='h-11 w-11' />
+          <span className='font-mono font-medium text-xl text-white'>
+            Alaya Code
+          </span>
         </Link>
-        <nav className='flex items-center space-x-6 text-sm font-medium'>
+        <nav className='flex items-center h-16'>
           <Link
             to='/'
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
+            className='font-mono font-light text-xs text-xyz-white-8 no-underline px-6 h-16 flex items-center transition-colors hover:text-white'
           >
             {t('nav.product')}
           </Link>
           <Link
             to='/pricing'
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
+            className='font-mono font-light text-xs text-xyz-white-8 no-underline px-6 h-16 flex items-center transition-colors hover:text-white'
           >
             {t('nav.pricing')}
           </Link>
           <Link
             to='/docs'
-            className='transition-colors hover:text-foreground/80 text-foreground/60'
+            className='font-mono font-light text-xs text-xyz-white-8 no-underline px-6 h-16 flex items-center transition-colors hover:text-white'
           >
             {t('nav.docs')}
           </Link>
         </nav>
-        <div className='ml-auto flex items-center space-x-2'>
-          <Button variant='ghost' size='sm' onClick={toggleLanguage} className='gap-1'>
-            <Globe className='h-4 w-4' />
-            <span className='text-xs'>{i18n.language === 'zh' ? 'EN' : '中文'}</span>
-          </Button>
-          <Button variant='ghost' size='sm' asChild>
-            <Link to='/login'>{t('nav.login')}</Link>
-          </Button>
-          <Button size='sm' asChild>
-            <Link to='/register'>{t('nav.register')}</Link>
-          </Button>
-        </div>
+      </div>
+
+      {/* Right: Lang + Auth */}
+      <div className='flex items-center h-16'>
+        <button
+          onClick={toggleLanguage}
+          className='flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-xyz-white-8 text-sm font-mono font-light px-4 h-full transition-colors hover:text-white'
+        >
+          <Globe className='h-5 w-5' />
+          <span className='text-xs'>{i18n.language === 'zh' ? 'EN' : '中文'}</span>
+        </button>
+        <Link
+          to='/login'
+          className='font-mono font-light text-sm text-xyz-white-8 no-underline px-6 h-16 flex items-center transition-colors hover:text-white'
+        >
+          {t('nav.login')}
+        </Link>
+        <Link
+          to='/register'
+          className='font-mono font-light text-sm text-white no-underline bg-xyz-blue-6 w-40 h-16 flex items-center justify-center gap-2 transition-colors hover:bg-[#3451e6]'
+        >
+          {t('nav.register')}
+          <svg width='14' height='12' viewBox='0 0 14 12' fill='none' className='rotate-[-45deg]'>
+            <path d='M1 6H13M13 6L8 1M13 6L8 11' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/>
+          </svg>
+        </Link>
       </div>
     </header>
   );

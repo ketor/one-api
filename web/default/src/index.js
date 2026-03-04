@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
 import { UserProvider } from './context/User';
@@ -13,6 +13,11 @@ import { BillingProvider } from './context/Billing';
 import './i18n';
 import { TooltipProvider } from './components/ui/tooltip';
 
+/* Suppress harmless ResizeObserver loop errors */
+window.addEventListener('error', (e) => {
+  if (e.message?.includes?.('ResizeObserver')) e.stopImmediatePropagation();
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -21,12 +26,12 @@ root.render(
         <SubscriptionProvider>
           <UsageProvider>
             <BillingProvider>
-              <BrowserRouter>
+              <HashRouter>
                 <TooltipProvider>
                   <App />
                 </TooltipProvider>
                 <ToastContainer style={{ zIndex: 99999 }} />
-              </BrowserRouter>
+              </HashRouter>
             </BillingProvider>
           </UsageProvider>
         </SubscriptionProvider>

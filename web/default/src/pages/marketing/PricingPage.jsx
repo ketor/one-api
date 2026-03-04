@@ -1,44 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../../components/ui/table';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '../../components/ui/accordion';
-import { CheckCircle2, Minus, ArrowRight, Loader2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'motion/react';
 import { API } from '../../helpers';
-
-const CellValue = ({ value }) => {
-  if (typeof value === 'boolean') {
-    return value ? (
-      <CheckCircle2 className='mx-auto h-4 w-4 text-green-500' />
-    ) : (
-      <Minus className='mx-auto h-4 w-4 text-muted-foreground' />
-    );
-  }
-  return <span className='text-sm'>{value}</span>;
-};
+import { BlurText, FadeIn, StaggerIn } from '../../components/animations';
 
 const formatPrice = (cents) => {
   const yuan = cents / 100;
@@ -108,44 +74,32 @@ const PricingPage = () => {
       priceSuffix: price ? t('pricing.plans.per_month') : '',
       features: buildFeatures(plan, t),
       cta: price ? t('pricing.plans.get_started') : t('pricing.plans.free_register'),
-      ctaVariant: highlighted ? 'default' : 'outline',
       highlighted,
     };
   });
 
+  /* Comparison rows */
   const comparisonFeatures = (() => {
     if (plans.length === 0) return [];
     const rows = [];
 
-    // Window limit row
     const windowRow = { feature: t('pricing.compare.window_limit') };
-    plans.forEach((p) => {
-      windowRow[p.name] = `${p.window_limit_count}`;
-    });
+    plans.forEach((p) => { windowRow[p.name] = `${p.window_limit_count}`; });
     rows.push(windowRow);
 
-    // Weekly limit row
     const weeklyRow = { feature: t('pricing.compare.weekly_limit') };
-    plans.forEach((p) => {
-      weeklyRow[p.name] = p.weekly_limit_count > 0 ? `${p.weekly_limit_count}` : '-';
-    });
+    plans.forEach((p) => { weeklyRow[p.name] = p.weekly_limit_count > 0 ? `${p.weekly_limit_count}` : '-'; });
     rows.push(weeklyRow);
 
-    // Overage row
     const overageRow = { feature: t('pricing.compare.overage') };
     plans.forEach((p) => {
-      overageRow[p.name] =
-        p.overage_rate_type === 'api'
-          ? t('pricing.compare.api_rate')
-          : t('pricing.compare.pause');
+      overageRow[p.name] = p.overage_rate_type === 'api' ? t('pricing.compare.api_rate') : t('pricing.compare.pause');
     });
     rows.push(overageRow);
 
-    // Monthly cap row
     const capRow = { feature: t('pricing.compare.monthly_cap') };
     plans.forEach((p) => {
-      capRow[p.name] =
-        p.overage_rate_type === 'api' ? t('pricing.compare.configurable') : '-';
+      capRow[p.name] = p.overage_rate_type === 'api' ? t('pricing.compare.configurable') : '-';
     });
     rows.push(capRow);
 
@@ -162,180 +116,298 @@ const PricingPage = () => {
 
   if (loading) {
     return (
-      <div className='flex min-h-[60vh] items-center justify-center'>
-        <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
+      <div className='flex min-h-[60vh] items-center justify-center xyz-section-light'>
+        <Loader2 className='h-8 w-8 animate-spin text-xyz-gray-5' />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className='flex min-h-[60vh] flex-col items-center justify-center gap-4'>
-        <p className='text-muted-foreground'>{t('admin.plan.load_error')}</p>
-        <Button variant='outline' onClick={() => window.location.reload()}>
+      <div className='flex min-h-[60vh] flex-col items-center justify-center gap-4 xyz-section-light'>
+        <p className='text-xyz-gray-6'>{t('admin.plan.load_error')}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className='border border-xyz-gray-4 text-xyz-gray-10 text-sm font-light h-10 px-6 bg-transparent cursor-pointer transition-colors hover:border-xyz-gray-7'
+        >
           {t('pricing.retry', '重试')}
-        </Button>
+        </button>
       </div>
     );
   }
 
   return (
     <div className='flex flex-col'>
-      {/* Hero */}
-      <section className='border-b py-16'>
-        <div className='container mx-auto max-w-screen-xl px-4 text-center'>
-          <h1 className='text-4xl font-bold tracking-tight'>
-            {t('pricing.hero.title')}
+
+      {/* ══════ Hero (白底 LIGHT) ══════ */}
+      <section className='xyz-section-light py-20'>
+        <div className='max-w-xyz mx-auto px-5 text-center'>
+          <h1 className='text-[64px] font-medium leading-[76px] text-xyz-gray-10 mb-4'>
+            <BlurText
+              text={t('pricing.hero.title')}
+              delay={80}
+              animateBy='words'
+              direction='bottom'
+              className='justify-center'
+              animationFrom={{ filter: 'blur(10px)', opacity: 0, y: 30 }}
+              animationTo={[
+                { filter: 'blur(5px)', opacity: 0.5, y: -5 },
+                { filter: 'blur(0px)', opacity: 1, y: 0 },
+              ]}
+            />
           </h1>
-          <p className='mx-auto mt-4 max-w-2xl text-lg text-muted-foreground'>
-            {t('pricing.hero.description')}
-          </p>
+          <FadeIn delay={0.3} distance={15}>
+            <p className='text-xl font-light text-xyz-gray-6 max-w-2xl mx-auto'>
+              {t('pricing.hero.description')}
+            </p>
+          </FadeIn>
         </div>
       </section>
 
-      {/* Pricing Cards */}
-      <section className='border-b py-16'>
-        <div className='container mx-auto max-w-screen-xl px-4'>
-          <div className={cn(
-            'grid gap-6',
-            planCards.length <= 2 ? 'md:grid-cols-2' :
-            planCards.length === 3 ? 'md:grid-cols-3' :
-            'md:grid-cols-2 lg:grid-cols-4'
-          )}>
-            {planCards.map((plan) => (
-              <Card
-                key={plan.id}
-                className={cn(
-                  'flex flex-col',
-                  plan.highlighted && 'border-primary shadow-lg'
-                )}
-              >
-                <CardHeader>
-                  <div className='flex items-center justify-between'>
-                    <CardTitle className='text-xl'>{plan.name}</CardTitle>
-                    {plan.highlighted && <Badge>{t('pricing.badge_recommended')}</Badge>}
-                  </div>
-                  <CardDescription>{plan.description}</CardDescription>
-                  <div className='mt-3'>
-                    <span className='text-3xl font-bold'>{plan.price}</span>
-                    {plan.priceSuffix && (
-                      <span className='text-muted-foreground'>
-                        {plan.priceSuffix}
+      {/* ══════ Plan Cards (深色 DARK) ══════ */}
+      <section className='bg-xyz-gray-10'>
+        <div className='max-w-xyz mx-auto'>
+          <div className='xyz-section-inner px-5 py-20'>
+            <StaggerIn
+              staggerDelay={0.12}
+              direction='up'
+              distance={40}
+              className={`grid gap-0 ${
+                planCards.length <= 2 ? 'md:grid-cols-2' :
+                planCards.length === 3 ? 'md:grid-cols-3' :
+                'md:grid-cols-2 lg:grid-cols-4'
+              }`}
+            >
+              {planCards.map((plan) => (
+                <div
+                  key={plan.id}
+                  className={`flex flex-col border p-8 transition-all duration-300 ${
+                    plan.highlighted
+                      ? 'border-xyz-blue-6 bg-[rgba(67,98,255,0.05)]'
+                      : 'border-xyz-white-2 hover:border-xyz-white-5'
+                  }`}
+                >
+                  <div className='flex items-center justify-between mb-2'>
+                    <h3 className='text-2xl font-medium text-white'>{plan.name}</h3>
+                    {plan.highlighted && (
+                      <span className='text-xs font-medium text-xyz-blue-5 border border-xyz-blue-6/30 px-2 py-0.5'>
+                        {t('pricing.badge_recommended')}
                       </span>
                     )}
                   </div>
-                </CardHeader>
-                <CardContent className='flex-1'>
-                  <ul className='space-y-2.5'>
+                  <p className='text-sm font-light text-xyz-white-6 mb-4'>{plan.description}</p>
+                  <div className='mb-6'>
+                    <span className='text-4xl font-medium text-white'>{plan.price}</span>
+                    {plan.priceSuffix && (
+                      <span className='text-sm font-light text-xyz-white-5 ml-1'>{plan.priceSuffix}</span>
+                    )}
+                  </div>
+                  <ul className='space-y-3 mb-8 list-none p-0 flex-1'>
                     {plan.features.map((feature, i) => (
-                      <li
-                        key={i}
-                        className='flex items-start gap-2 text-sm text-muted-foreground'
-                      >
-                        <CheckCircle2 className='mt-0.5 h-4 w-4 shrink-0 text-green-500' />
+                      <li key={i} className='flex items-start gap-2 text-sm font-light text-xyz-white-6'>
+                        <span className='w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 shrink-0' />
                         {feature}
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    variant={plan.ctaVariant}
-                    className='w-full'
-                    asChild
+                  <Link
+                    to='/register'
+                    className={`block w-full text-center text-sm font-light h-10 leading-10 no-underline transition-colors ${
+                      plan.highlighted
+                        ? 'bg-xyz-blue-6 text-white hover:bg-[#3451e6]'
+                        : 'border border-xyz-white-3 text-white hover:border-xyz-white-5'
+                    }`}
                   >
-                    <Link to='/register'>{plan.cta}</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                    {plan.cta}
+                  </Link>
+                </div>
+              ))}
+            </StaggerIn>
           </div>
         </div>
       </section>
 
-      {/* Feature Comparison Table */}
+      {/* ══════ Comparison Table (白底 LIGHT) ══════ */}
       {plans.length > 0 && (
-        <section className='border-b py-16'>
-          <div className='container mx-auto max-w-screen-xl px-4'>
-            <h2 className='mb-8 text-center text-2xl font-bold tracking-tight'>
-              {t('pricing.compare.title')}
-            </h2>
-            <div className='overflow-x-auto'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='w-[200px]'>{t('pricing.compare.feature')}</TableHead>
-                    {plans.map((p) => (
-                      <TableHead key={p.id} className='text-center'>
-                        {p.display_name || p.name}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {comparisonFeatures.map((row) => (
-                    <TableRow key={row.feature}>
-                      <TableCell className='font-medium'>
-                        {row.feature}
-                      </TableCell>
-                      {plans.map((p) => (
-                        <TableCell key={p.id} className='text-center'>
-                          <CellValue value={row[p.name]} />
-                        </TableCell>
+        <section className='xyz-section-light'>
+          <div className='max-w-xyz mx-auto'>
+            <div className='xyz-section-light-inner px-5 py-20'>
+              <FadeIn>
+                <h2 className='text-3xl font-medium text-xyz-gray-10 text-center mb-12'>
+                  <BlurText
+                    text={t('pricing.compare.title')}
+                    delay={60}
+                    animateBy='words'
+                    direction='bottom'
+                    className='justify-center'
+                    animationFrom={{ filter: 'blur(10px)', opacity: 0, y: 30 }}
+                    animationTo={[
+                      { filter: 'blur(5px)', opacity: 0.5, y: -5 },
+                      { filter: 'blur(0px)', opacity: 1, y: 0 },
+                    ]}
+                  />
+                </h2>
+              </FadeIn>
+              <FadeIn delay={0.2} distance={30}>
+                <div className='overflow-x-auto'>
+                  <table className='w-full'>
+                    <thead>
+                      <tr className='border-b border-xyz-gray-3'>
+                        <th className='text-left text-sm font-medium text-xyz-gray-6 py-4 pr-8 w-[200px]'>
+                          {t('pricing.compare.feature')}
+                        </th>
+                        {plans.map((p) => (
+                          <th key={p.id} className='text-center text-sm font-medium text-xyz-gray-10 py-4 px-4'>
+                            {p.display_name || p.name}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonFeatures.map((row, rowIdx) => (
+                        <motion.tr
+                          key={row.feature}
+                          className='border-b border-xyz-gray-2'
+                          initial={{ opacity: 0, x: -20 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true, amount: 0.5 }}
+                          transition={{ duration: 0.4, delay: rowIdx * 0.08 }}
+                        >
+                          <td className='text-sm font-light text-xyz-gray-8 py-4 pr-8'>
+                            {row.feature}
+                          </td>
+                          {plans.map((p) => (
+                            <td key={p.id} className='text-center text-sm font-light text-xyz-gray-6 py-4 px-4'>
+                              {row[p.name]}
+                            </td>
+                          ))}
+                        </motion.tr>
                       ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                    </tbody>
+                  </table>
+                </div>
+              </FadeIn>
             </div>
           </div>
         </section>
       )}
 
-      {/* FAQ Section */}
-      <section className='border-b py-16'>
-        <div className='container mx-auto max-w-screen-xl px-4'>
-          <h2 className='mb-8 text-center text-2xl font-bold tracking-tight'>
-            {t('pricing.faq.title')}
-          </h2>
-          <div className='mx-auto max-w-3xl'>
-            <Accordion type='single' collapsible>
+      {/* ══════ FAQ (深色 DARK) ══════ */}
+      <section className='bg-xyz-gray-10'>
+        <div className='max-w-xyz mx-auto'>
+          <div className='xyz-section-inner px-5 py-20'>
+            <FadeIn>
+              <h2 className='text-3xl font-medium text-white text-center mb-12'>
+                <BlurText
+                  text={t('pricing.faq.title')}
+                  delay={60}
+                  animateBy='words'
+                  direction='bottom'
+                  className='justify-center'
+                />
+              </h2>
+            </FadeIn>
+            <div className='max-w-3xl mx-auto space-y-0'>
               {faqs.map((faq, i) => (
-                <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger>{faq.question}</AccordionTrigger>
-                  <AccordionContent>
-                    <p className='text-muted-foreground'>{faq.answer}</p>
-                  </AccordionContent>
-                </AccordionItem>
+                <FaqItem key={i} question={faq.question} answer={faq.answer} index={i} />
               ))}
-            </Accordion>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className='py-16'>
-        <div className='container mx-auto max-w-screen-xl px-4 text-center'>
-          <h2 className='text-2xl font-bold tracking-tight'>
-            {t('marketing.cta.title')}
-          </h2>
-          <p className='mx-auto mt-3 max-w-lg text-muted-foreground'>
-            {t('pricing.cta.description')}
-          </p>
-          <div className='mt-8 flex justify-center gap-4'>
-            <Button size='lg' asChild>
-              <Link to='/register'>
-                {t('marketing.cta.register')}
-                <ArrowRight className='ml-1 h-4 w-4' />
-              </Link>
-            </Button>
-            <Button size='lg' variant='outline' asChild>
-              <Link to='/docs'>{t('marketing.cta.view_docs')}</Link>
-            </Button>
+      {/* ══════ CTA (白底 LIGHT) ══════ */}
+      <section className='xyz-section-light'>
+        <div className='max-w-xyz mx-auto'>
+          <div className='xyz-section-light-inner px-5 py-20 text-center'>
+            <FadeIn>
+              <h2 className='text-3xl font-medium text-xyz-gray-10 mb-4'>
+                <BlurText
+                  text={t('marketing.cta.title')}
+                  delay={60}
+                  animateBy='words'
+                  direction='bottom'
+                  className='justify-center'
+                  animationFrom={{ filter: 'blur(10px)', opacity: 0, y: 30 }}
+                  animationTo={[
+                    { filter: 'blur(5px)', opacity: 0.5, y: -5 },
+                    { filter: 'blur(0px)', opacity: 1, y: 0 },
+                  ]}
+                />
+              </h2>
+            </FadeIn>
+            <FadeIn delay={0.2} distance={15}>
+              <p className='text-lg font-light text-xyz-gray-6 max-w-lg mx-auto mb-10'>
+                {t('pricing.cta.description')}
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.4} distance={20}>
+              <div className='flex justify-center gap-4'>
+                <Link
+                  to='/register'
+                  className='inline-flex items-center justify-center gap-2 bg-xyz-blue-6 text-white text-base font-light h-10 px-6 no-underline transition-colors hover:bg-[#3451e6]'
+                >
+                  {t('marketing.cta.register')}
+                  <svg width='14' height='12' viewBox='0 0 14 12' fill='none' className='rotate-[-45deg]'>
+                    <path d='M1 6H13M13 6L8 1M13 6L8 11' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/>
+                  </svg>
+                </Link>
+                <Link
+                  to='/docs'
+                  className='inline-flex items-center justify-center gap-2 border border-xyz-gray-4 text-xyz-gray-10 text-base font-light h-10 px-6 no-underline transition-colors hover:border-xyz-gray-7'
+                >
+                  {t('marketing.cta.view_docs')}
+                </Link>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
     </div>
+  );
+};
+
+/* ── FAQ accordion item (Dark theme) ── */
+const FaqItem = ({ question, answer, index }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <motion.div
+      className='border border-xyz-white-2 transition-colors duration-300'
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.5 }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className='w-full flex items-center justify-between p-5 bg-transparent border-none cursor-pointer text-left'
+      >
+        <span className='text-base font-medium text-white'>{question}</span>
+        <motion.span
+          className='text-xyz-white-5 text-xl ml-4 shrink-0'
+          animate={{ rotate: open ? 45 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          +
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            className='overflow-hidden'
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <p className='px-5 pb-5 text-sm font-light text-xyz-white-6 leading-relaxed'>
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
