@@ -27,7 +27,7 @@ func setupTestDB() {
 	// Run migrations for all models needed in tests
 	err = DB.AutoMigrate(&User{}, &Token{}, &Channel{}, &Plan{}, &Subscription{},
 		&Order{}, &BoosterPack{}, &UserBoosterPack{}, &UsageWindow{},
-		&Option{}, &Redemption{}, &Ability{}, &Log{})
+		&Option{}, &Redemption{}, &Ability{}, &Log{}, &ContactMessage{})
 	if err != nil {
 		panic("failed to migrate test database: " + err.Error())
 	}

@@ -156,7 +156,7 @@ func TestInitDefaultPlans(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, all, 4)
 
-	expectedNames := map[string]bool{"lite": false, "pro": false, "max5x": false, "max20x": false}
+	expectedNames := map[string]bool{"glow": false, "star": false, "solar": false, "galaxy": false}
 	for _, p := range all {
 		if _, ok := expectedNames[p.Name]; ok {
 			expectedNames[p.Name] = true
@@ -174,6 +174,41 @@ func TestInitDefaultPlans(t *testing.T) {
 	all2, err := GetAllPlans()
 	assert.NoError(t, err)
 	assert.Len(t, all2, 4)
+}
+
+func TestInitDefaultPlans_NewFields(t *testing.T) {
+	cleanTable(&Plan{})
+
+	InitDefaultPlans()
+
+	// Verify solar is featured
+	solar, err := GetPlanByName("solar")
+	assert.NoError(t, err)
+	assert.True(t, solar.IsFeatured)
+	assert.False(t, solar.IsContactSales)
+	assert.Equal(t, "立即升级", solar.CtaText)
+	assert.NotEmpty(t, solar.Features)
+	assert.NotEmpty(t, solar.Tagline)
+
+	// Verify galaxy is contact-sales
+	galaxy, err := GetPlanByName("galaxy")
+	assert.NoError(t, err)
+	assert.True(t, galaxy.IsContactSales)
+	assert.False(t, galaxy.IsFeatured)
+	assert.Equal(t, "联系销售", galaxy.CtaText)
+
+	// Verify glow is free
+	glow, err := GetPlanByName("glow")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), glow.PriceCentsMonthly)
+	assert.Equal(t, "免费注册", glow.CtaText)
+	assert.False(t, glow.IsFeatured)
+	assert.False(t, glow.IsContactSales)
+
+	// Verify star
+	star, err := GetPlanByName("star")
+	assert.NoError(t, err)
+	assert.Equal(t, int64(9900), star.PriceCentsMonthly)
 }
 
 func TestPlan_UniqueNameConstraint(t *testing.T) {
