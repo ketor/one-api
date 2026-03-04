@@ -11,6 +11,7 @@ import (
 	"github.com/songquanpeng/one-api/common/ctxkey"
 	"github.com/songquanpeng/one-api/common/helper"
 	"github.com/songquanpeng/one-api/model"
+	"github.com/songquanpeng/one-api/payment"
 )
 
 func GetSelfSubscription(c *gin.Context) {
@@ -94,12 +95,11 @@ func CreateSubscription(c *gin.Context) {
 
 	// Create order
 	order := &model.Order{
-		UserId:        userId,
-		PlanId:        plan.Id,
-		Type:          model.OrderTypeNewSubscription,
-		AmountCents:   plan.PriceCentsMonthly,
-		Status:        model.OrderStatusPending,
-		PaymentMethod: "admin",
+		UserId:      userId,
+		PlanId:      plan.Id,
+		Type:        model.OrderTypeNewSubscription,
+		AmountCents: plan.PriceCentsMonthly,
+		Status:      model.OrderStatusPending,
 	}
 	err = model.CreateOrder(order)
 	if err != nil {
@@ -110,45 +110,61 @@ func CreateSubscription(c *gin.Context) {
 		return
 	}
 
-	// First batch: direct activation (admin recharge mode)
-	err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
-	if err != nil {
+	// Free plan or mock mode: direct activation
+	if plan.PriceCentsMonthly == 0 || payment.GetConfig().IsMockEnabled() {
+		order.PaymentMethod = "admin"
+		_ = model.UpdateOrderPayment(order.Id, "admin", "")
+		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "更新订单状态失败: " + err.Error(),
+			})
+			return
+		}
+
+		// Create subscription
+		now := helper.GetTimestamp()
+		periodEnd := now + 30*24*3600 // 30 days
+		sub := &model.Subscription{
+			UserId:             userId,
+			PlanId:             plan.Id,
+			Status:             model.SubscriptionStatusActive,
+			CurrentPeriodStart: now,
+			CurrentPeriodEnd:   periodEnd,
+			AutoRenew:          true,
+		}
+		err = model.CreateSubscription(sub)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "创建订阅失败: " + err.Error(),
+			})
+			return
+		}
+
+		model.UpdateUserGroupByPlan(userId, plan.Id)
+
 		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "更新订单状态失败: " + err.Error(),
+			"success": true,
+			"message": "",
+			"data": gin.H{
+				"subscription": sub,
+				"order":        order,
+				"need_payment": false,
+			},
 		})
 		return
 	}
 
-	// Create subscription
-	now := helper.GetTimestamp()
-	periodEnd := now + 30*24*3600 // 30 days
-	sub := &model.Subscription{
-		UserId:             userId,
-		PlanId:             plan.Id,
-		Status:             model.SubscriptionStatusActive,
-		CurrentPeriodStart: now,
-		CurrentPeriodEnd:   periodEnd,
-		AutoRenew:          true,
-	}
-	err = model.CreateSubscription(sub)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "创建订阅失败: " + err.Error(),
-		})
-		return
-	}
-
-	// Update user group
-	model.UpdateUserGroupByPlan(userId, plan.Id)
-
+	// Paid plan with real payment: return order info for user to pay
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "订单已创建，请选择支付方式完成支付",
 		"data": gin.H{
-			"subscription": sub,
 			"order":        order,
+			"need_payment": true,
+			"providers":    payment.GetAll(),
 		},
 	})
 }
@@ -214,18 +230,31 @@ func UpgradeSubscription(c *gin.Context) {
 		return
 	}
 
-	// Create upgrade order
-	priceDiff := newPlan.PriceCentsMonthly - currentPlan.PriceCentsMonthly
-	if priceDiff < 0 {
-		priceDiff = 0
+	// Calculate prorated upgrade amount
+	now := helper.GetTimestamp()
+	amountCents, creditCents, calcErr := payment.CalculateUpgradeAmount(
+		currentPlan.PriceCentsMonthly,
+		newPlan.PriceCentsMonthly,
+		sub.CurrentPeriodStart,
+		sub.CurrentPeriodEnd,
+		now,
+	)
+	if calcErr != nil {
+		// Fallback to simple price difference
+		amountCents = newPlan.PriceCentsMonthly - currentPlan.PriceCentsMonthly
+		if amountCents < 0 {
+			amountCents = 0
+		}
+		creditCents = 0
 	}
+
+	// Create upgrade order
 	order := &model.Order{
-		UserId:        userId,
-		PlanId:        newPlan.Id,
-		Type:          model.OrderTypeUpgrade,
-		AmountCents:   priceDiff,
-		Status:        model.OrderStatusPending,
-		PaymentMethod: "admin",
+		UserId:      userId,
+		PlanId:      newPlan.Id,
+		Type:        model.OrderTypeUpgrade,
+		AmountCents: amountCents,
+		Status:      model.OrderStatusPending,
 	}
 	err = model.CreateOrder(order)
 	if err != nil {
@@ -236,37 +265,55 @@ func UpgradeSubscription(c *gin.Context) {
 		return
 	}
 
-	// Direct activation
-	err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
-	if err != nil {
+	// Free upgrade (amount=0) or mock mode: direct activation
+	if amountCents == 0 || payment.GetConfig().IsMockEnabled() {
+		_ = model.UpdateOrderPayment(order.Id, "admin", "")
+		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "更新订单状态失败: " + err.Error(),
+			})
+			return
+		}
+
+		// Update subscription
+		sub.PlanId = newPlan.Id
+		sub.MonthlySpentCents = 0
+		sub.UpdatedTime = helper.GetTimestamp()
+		err = model.UpdateSubscription(sub)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "更新订阅失败: " + err.Error(),
+			})
+			return
+		}
+
+		model.UpdateUserGroupByPlan(userId, newPlan.Id)
+
 		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "更新订单状态失败: " + err.Error(),
+			"success": true,
+			"message": "",
+			"data": gin.H{
+				"subscription": sub,
+				"order":        order,
+				"need_payment": false,
+			},
 		})
 		return
 	}
 
-	// Update subscription
-	sub.PlanId = newPlan.Id
-	sub.UpdatedTime = helper.GetTimestamp()
-	err = model.UpdateSubscription(sub)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "更新订阅失败: " + err.Error(),
-		})
-		return
-	}
-
-	// Update user group
-	model.UpdateUserGroupByPlan(userId, newPlan.Id)
-
+	// Paid upgrade: return order info for user to pay
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "升级订单已创建，请完成支付",
 		"data": gin.H{
-			"subscription": sub,
 			"order":        order,
+			"need_payment": true,
+			"amount_cents": amountCents,
+			"credit_cents": creditCents,
+			"providers":    payment.GetAll(),
 		},
 	})
 }
@@ -421,12 +468,11 @@ func RenewSubscription(c *gin.Context) {
 
 	// Create renewal order
 	order := &model.Order{
-		UserId:        userId,
-		PlanId:        plan.Id,
-		Type:          model.OrderTypeRenewal,
-		AmountCents:   plan.PriceCentsMonthly,
-		Status:        model.OrderStatusPending,
-		PaymentMethod: "admin",
+		UserId:      userId,
+		PlanId:      plan.Id,
+		Type:        model.OrderTypeRenewal,
+		AmountCents: plan.PriceCentsMonthly,
+		Status:      model.OrderStatusPending,
 	}
 	err = model.CreateOrder(order)
 	if err != nil {
@@ -437,42 +483,58 @@ func RenewSubscription(c *gin.Context) {
 		return
 	}
 
-	// Direct activation
-	err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
-	if err != nil {
+	// Free plan or mock mode: direct activation
+	if plan.PriceCentsMonthly == 0 || payment.GetConfig().IsMockEnabled() {
+		_ = model.UpdateOrderPayment(order.Id, "admin", "")
+		err = model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "更新订单状态失败: " + err.Error(),
+			})
+			return
+		}
+
+		// Extend subscription period
+		now := helper.GetTimestamp()
+		if sub.CurrentPeriodEnd > now {
+			sub.CurrentPeriodEnd = sub.CurrentPeriodEnd + 30*24*3600
+		} else {
+			sub.CurrentPeriodStart = now
+			sub.CurrentPeriodEnd = now + 30*24*3600
+		}
+		sub.AutoRenew = true
+		sub.MonthlySpentCents = 0
+		sub.UpdatedTime = helper.GetTimestamp()
+		err = model.UpdateSubscription(sub)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "更新订阅失败: " + err.Error(),
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "更新订单状态失败: " + err.Error(),
+			"success": true,
+			"message": "",
+			"data": gin.H{
+				"subscription": sub,
+				"order":        order,
+				"need_payment": false,
+			},
 		})
 		return
 	}
 
-	// Extend subscription period
-	now := helper.GetTimestamp()
-	if sub.CurrentPeriodEnd > now {
-		sub.CurrentPeriodEnd = sub.CurrentPeriodEnd + 30*24*3600
-	} else {
-		sub.CurrentPeriodStart = now
-		sub.CurrentPeriodEnd = now + 30*24*3600
-	}
-	sub.AutoRenew = true
-	sub.MonthlySpentCents = 0
-	sub.UpdatedTime = helper.GetTimestamp()
-	err = model.UpdateSubscription(sub)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "更新订阅失败: " + err.Error(),
-		})
-		return
-	}
-
+	// Paid renewal: return order info for user to pay
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "续费订单已创建，请完成支付",
 		"data": gin.H{
-			"subscription": sub,
 			"order":        order,
+			"need_payment": true,
+			"providers":    payment.GetAll(),
 		},
 	})
 }
