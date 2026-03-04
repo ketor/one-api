@@ -100,7 +100,7 @@ func CreateSubscription(sub *Subscription) error {
 
 func UpdateSubscription(sub *Subscription) error {
 	sub.UpdatedTime = helper.GetTimestamp()
-	err := DB.Model(sub).Updates(sub).Error
+	err := DB.Save(sub).Error
 	if err == nil {
 		CacheInvalidateSubscription(sub.UserId)
 	}

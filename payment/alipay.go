@@ -12,6 +12,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"sort"
@@ -456,5 +457,5 @@ func parseYuanToCents(yuanStr string) int64 {
 	// Parse as float then convert to cents to handle "1.00" format
 	var yuan float64
 	fmt.Sscanf(yuanStr, "%f", &yuan)
-	return int64(yuan * 100)
+	return int64(math.Round(yuan * 100))
 }

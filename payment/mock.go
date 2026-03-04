@@ -41,10 +41,15 @@ func (m *MockProvider) HandleCallback(ctx context.Context, body []byte, headers 
 		return nil, fmt.Errorf("order_no not found in callback body")
 	}
 
+	var amountCents int64
+	if v, ok := data["amount_cents"].(float64); ok {
+		amountCents = int64(v)
+	}
+
 	return &CallbackResult{
 		OrderNo:     orderNo,
 		TradeNo:     "MOCK_" + orderNo,
-		AmountCents: int64(data["amount_cents"].(float64)),
+		AmountCents: amountCents,
 		Success:     true,
 	}, nil
 }
