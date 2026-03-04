@@ -96,7 +96,7 @@ const DocsLayout = () => {
         </aside>
         {/* Main content */}
         <main className='flex-1 py-6 md:pl-6'>
-          <div className='prose prose-neutral max-w-none'>
+          <div className='prose max-w-none'>
             <Outlet />
           </div>
         </main>

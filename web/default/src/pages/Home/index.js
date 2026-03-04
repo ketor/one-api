@@ -186,7 +186,7 @@ const Home = () => {
             />
           ) : (
             <div
-              className='prose prose-neutral mx-auto max-w-5xl py-8 px-4'
+              className='prose mx-auto max-w-5xl py-8 px-4'
               dangerouslySetInnerHTML={{ __html: homePageContent }}
             />
           )}

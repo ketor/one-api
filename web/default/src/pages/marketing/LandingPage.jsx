@@ -418,7 +418,7 @@ const LandingPage = () => {
                     <span className='text-xyz-blue-5 font-medium'>{model.context}</span>{' '}
                     {t('marketing.models.context_label')} &middot; {model.highlight}
                   </p>
-                  <p className='text-sm font-light text-xyz-white-5 leading-relaxed'>
+                  <p className='text-sm font-light text-xyz-white-7 leading-relaxed'>
                     {model.description}
                   </p>
                 </div>
@@ -523,7 +523,7 @@ const LandingPage = () => {
                         <h3
                           className='text-xl font-medium mb-2'
                           style={{
-                            color: isActive ? '#ffffff' : 'rgba(255,255,255,0.40)',
+                            color: isActive ? '#ffffff' : 'rgba(255,255,255,0.50)',
                             transition: 'color 0.3s ease',
                           }}
                         >

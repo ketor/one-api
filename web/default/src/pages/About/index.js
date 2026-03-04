@@ -70,7 +70,7 @@ const About = () => {
               <Card>
                 <CardContent className='pt-6'>
                   <div
-                    className='prose prose-neutral max-w-none'
+                    className='prose max-w-none'
                     dangerouslySetInnerHTML={{ __html: about }}
                   />
                 </CardContent>

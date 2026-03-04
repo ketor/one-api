@@ -20,7 +20,7 @@ export const Button = React.forwardRef(({
   if (size === 'small') sizeClass = 'px-3 py-1.5 text-sm';
   if (size === 'large') sizeClass = 'px-6 py-3 text-base';
 
-  let colorClass = 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
+  let colorClass = 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-xyz-white-2';
   if (primary || color === 'blue') colorClass = 'bg-primary text-primary-foreground hover:bg-primary/90';
   if (positive || color === 'green') colorClass = 'bg-green-600 text-white hover:bg-green-700';
   if (negative || color === 'red') colorClass = 'bg-destructive text-destructive-foreground hover:bg-destructive/90';
@@ -385,19 +385,19 @@ Table.Cell = ({ children, className, colSpan, ...rest }) => <td className={cn('p
 // ---- Label ----
 export const Label = ({ children, color, basic, className, ...rest }) => {
   const colorMap = {
-    green: 'bg-green-100 text-green-800 border-green-300',
-    red: 'bg-red-100 text-red-800 border-red-300',
-    yellow: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    grey: 'bg-gray-100 text-gray-800 border-gray-300',
+    green: 'bg-green-900/40 text-green-400 border-green-700',
+    red: 'bg-red-900/40 text-red-400 border-red-700',
+    yellow: 'bg-yellow-900/40 text-yellow-400 border-yellow-700',
+    grey: 'bg-gray-800/40 text-gray-400 border-gray-600',
     black: 'bg-gray-900 text-white border-gray-900',
-    blue: 'bg-blue-100 text-blue-800 border-blue-300',
-    orange: 'bg-orange-100 text-orange-800 border-orange-300',
-    olive: 'bg-lime-100 text-lime-800 border-lime-300',
-    teal: 'bg-teal-100 text-teal-800 border-teal-300',
-    violet: 'bg-violet-100 text-violet-800 border-violet-300',
-    purple: 'bg-purple-100 text-purple-800 border-purple-300',
-    pink: 'bg-pink-100 text-pink-800 border-pink-300',
-    brown: 'bg-amber-100 text-amber-800 border-amber-300',
+    blue: 'bg-blue-900/40 text-blue-400 border-blue-700',
+    orange: 'bg-orange-900/40 text-orange-400 border-orange-700',
+    olive: 'bg-lime-900/40 text-lime-400 border-lime-700',
+    teal: 'bg-teal-900/40 text-teal-400 border-teal-700',
+    violet: 'bg-violet-900/40 text-violet-400 border-violet-700',
+    purple: 'bg-purple-900/40 text-purple-400 border-purple-700',
+    pink: 'bg-pink-900/40 text-pink-400 border-pink-700',
+    brown: 'bg-amber-900/40 text-amber-400 border-amber-700',
   };
   const colorClass = colorMap[color] || 'bg-secondary text-secondary-foreground';
   return (
@@ -411,9 +411,9 @@ export const Label = ({ children, color, basic, className, ...rest }) => {
 export const Message = ({ children, negative, positive, info, warning, onDismiss, style, className, ...rest }) => {
   let variant = 'border bg-muted/50';
   if (negative) variant = 'border-destructive/50 bg-destructive/10 text-destructive';
-  if (positive) variant = 'border-green-500/50 bg-green-50 text-green-800';
-  if (info) variant = 'border-blue-500/50 bg-blue-50 text-blue-800';
-  if (warning) variant = 'border-yellow-500/50 bg-yellow-50 text-yellow-800';
+  if (positive) variant = 'border-green-500/50 bg-green-900/30 text-green-400';
+  if (info) variant = 'border-blue-500/50 bg-blue-900/30 text-blue-400';
+  if (warning) variant = 'border-yellow-500/50 bg-yellow-900/30 text-yellow-400';
   return (
     <div className={cn('relative rounded-lg p-4', variant, className)} style={style} {...rest}>
       {onDismiss && (

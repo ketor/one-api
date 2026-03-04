@@ -58,11 +58,14 @@ const ModelUsageChart = ({ data, title, height = 350 }) => {
             />
             <Tooltip
               contentStyle={{
-                background: '#fff',
-                border: 'none',
+                background: '#0f1728',
+                border: '1px solid rgba(255,255,255,0.10)',
                 borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                color: '#fff',
               }}
+              labelStyle={{ color: 'rgba(255,255,255,0.80)' }}
+              itemStyle={{ color: 'rgba(255,255,255,0.70)' }}
             />
             <Legend />
             <Bar dataKey='request_count' name={t('console.model_chart.request_count')} fill={COLORS[0]} radius={[4, 4, 0, 0]} />

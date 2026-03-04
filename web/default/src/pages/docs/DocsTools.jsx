@@ -53,14 +53,14 @@ const DocsTools = () => {
                 <ul className='ml-4 list-disc space-y-1 text-sm text-muted-foreground'>
                   <li>
                     <strong>Model Name:</strong>{' '}
-                    <code className='rounded bg-muted px-1'>kimi-2.5</code>
+                    <code className='rounded bg-muted px-1 text-foreground'>kimi-2.5</code>
                   </li>
                   <li>
                     <strong>API Key:</strong> {t('docs.tools.your_api_key')}
                   </li>
                   <li>
                     <strong>API Base URL:</strong>{' '}
-                    <code className='rounded bg-muted px-1'>
+                    <code className='rounded bg-muted px-1 text-foreground'>
                       https://api.alayanew.com/v1
                     </code>
                   </li>
@@ -162,7 +162,7 @@ claude
                 <ul className='ml-4 list-disc space-y-1 text-sm text-muted-foreground'>
                   <li>
                     <strong>API Base URL:</strong>{' '}
-                    <code className='rounded bg-muted px-1'>
+                    <code className='rounded bg-muted px-1 text-foreground'>
                       https://api.alayanew.com/v1
                     </code>
                   </li>
@@ -171,7 +171,7 @@ claude
                   </li>
                   <li>
                     <strong>Model ID:</strong>{' '}
-                    <code className='rounded bg-muted px-1'>kimi-2.5</code>
+                    <code className='rounded bg-muted px-1 text-foreground'>kimi-2.5</code>
                   </li>
                 </ul>
               </div>
