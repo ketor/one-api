@@ -208,11 +208,8 @@ const LandingPage = () => {
             />
           </h1>
           <FadeIn delay={0.4} distance={20}>
-            <p className='text-base font-light leading-7 text-xyz-white-7 mb-1'>
-              Alaya Code 聚合 Kimi、通义千问、智谱 GLM 等国产大模型，提供 OpenAI 兼容接口。
-            </p>
             <p className='text-base font-light leading-7 text-xyz-white-7 mb-10'>
-              无需切换 SDK，一行配置即可接入 Cursor、Claude Code 等 AI 工具链。
+              {t('marketing.hero.description')}
             </p>
           </FadeIn>
           <FadeIn delay={0.6} distance={20}>
