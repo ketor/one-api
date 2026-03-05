@@ -17,4 +17,4 @@ const ConsoleLayout = () => {
   );
 };
 
-export default ConsoleLayout;
+export default React.memo(ConsoleLayout);

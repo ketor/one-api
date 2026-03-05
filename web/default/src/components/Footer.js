@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getFooterHTML, getSystemName } from '../helpers';
 
@@ -6,25 +6,21 @@ const Footer = () => {
   const { t } = useTranslation();
   const systemName = getSystemName();
   const [footer, setFooter] = useState(getFooterHTML());
-  let remainCheckTimes = 5;
-
-  const loadFooter = () => {
-    let footer_html = localStorage.getItem('footer_html');
-    if (footer_html) {
-      setFooter(footer_html);
-    }
-  };
+  const remainCheckTimesRef = useRef(5);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (remainCheckTimes <= 0) {
+      if (remainCheckTimesRef.current <= 0) {
         clearInterval(timer);
         return;
       }
-      remainCheckTimes--;
-      loadFooter();
+      remainCheckTimesRef.current--;
+      const footer_html = localStorage.getItem('footer_html');
+      if (footer_html) {
+        setFooter(footer_html);
+      }
     }, 200);
-    return () => clearTimeout(timer);
+    return () => clearInterval(timer);
   }, []);
 
   return (

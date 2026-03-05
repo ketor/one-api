@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/User';
 import { API, showSuccess } from '../../helpers';
@@ -21,17 +21,17 @@ const ConsoleTopBar = () => {
   const [userState, userDispatch] = useContext(UserContext);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const toggleLanguage = () => {
+  const toggleLanguage = useCallback(() => {
     i18n.changeLanguage(i18n.language === 'zh' ? 'en' : 'zh');
-  };
+  }, [i18n]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await API.get('/api/user/logout');
     showSuccess(t('nav.logout_success'));
     userDispatch({ type: 'logout' });
     localStorage.removeItem('user');
     navigate('/login');
-  };
+  }, [t, userDispatch, navigate]);
 
   const username = userState.user?.username || t('nav.user_default');
   const initial = username.charAt(0).toUpperCase();

@@ -823,6 +823,7 @@
       "get_code": "获取验证码",
       "get_code_retry": "重试 ({{countdown}})",
       "button": "注册",
+      "registering": "注册中...",
       "has_account": "已有账户？",
       "login": "点击登录"
     },
@@ -844,6 +845,7 @@
   "messages": {
     "success": {
       "login": "登录成功！",
+      "logout": "注销成功！",
       "register": "注册成功！",
       "verification_code": "验证码发送成功，请检查你的邮箱！",
       "password_reset": "重置邮件发送成功，请检查邮箱！"
@@ -1259,7 +1261,20 @@
       "free_plan": "免费版",
       "loading": "加载中...",
       "upgrade": "升级套餐"
-    }
+    },
+    "admin": {
+      "title": "管理后台",
+      "dashboard": "数据看板",
+      "keys_audit": "Key 审计",
+      "usage_monitor": "用量监控",
+      "user_management": "用户管理",
+      "channel_management": "渠道管理",
+      "redemption_management": "兑换管理",
+      "system_settings": "系统设置",
+      "back_to_console": "返回控制台",
+      "role": "管理员"
+    },
+    "switch_language": "切换语言"
   },
   "marketing_footer": {
     "product": "产品",
@@ -1969,5 +1984,9 @@
     "mock_confirm_btn": "确认模拟支付",
     "mock_hint": "点击按钮将模拟支付成功",
     "auto_redirect": "3秒后自动跳转..."
+  },
+  "not_found": {
+    "title": "页面不存在",
+    "description": "请检查你的浏览器地址是否正确"
   }
 }

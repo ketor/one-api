@@ -94,10 +94,9 @@ export function showError(error) {
   console.error(error);
   if (error.message) {
     if (error.name === 'AxiosError') {
-      switch (error.response.status) {
+      switch (error.response?.status) {
         case 401:
-          // toast.error('错误：未登录或登录已过期，请重新登录！', showErrorOptions);
-          window.location.href = '/login?expired=true';
+          // 401 is handled by API interceptor (redirect to login)
           break;
         case 429:
           toast.error('错误：请求次数过多，请稍后再试！', showErrorOptions);

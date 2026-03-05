@@ -848,6 +848,7 @@
   "messages": {
     "success": {
       "login": "Login successful!",
+      "logout": "Logged out successfully!",
       "register": "Registration successful!",
       "verification_code": "Verification code sent, please check your email!",
       "password_reset": "Reset email sent, please check your inbox!"
@@ -1973,5 +1974,9 @@
     "mock_confirm_btn": "Confirm Mock Payment",
     "mock_hint": "Click the button to simulate a successful payment",
     "auto_redirect": "Redirecting in 3 seconds..."
+  },
+  "not_found": {
+    "title": "Page Not Found",
+    "description": "Please check that the URL is correct"
   }
 }

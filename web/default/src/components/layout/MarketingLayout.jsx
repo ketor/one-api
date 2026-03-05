@@ -15,4 +15,4 @@ const MarketingLayout = () => {
   );
 };
 
-export default MarketingLayout;
+export default React.memo(MarketingLayout);
