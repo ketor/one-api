@@ -73,6 +73,17 @@ func CacheGetUserGroup(id int) (group string, err error) {
 	return group, err
 }
 
+// CacheInvalidateUserGroup removes the cached group for a user.
+func CacheInvalidateUserGroup(userId int) {
+	if !common.RedisEnabled {
+		return
+	}
+	err := common.RedisDel(fmt.Sprintf("user_group:%d", userId))
+	if err != nil {
+		logger.SysError("Redis del user group error: " + err.Error())
+	}
+}
+
 func fetchAndUpdateUserQuota(ctx context.Context, id int) (quota int64, err error) {
 	quota, err = GetUserQuota(id)
 	if err != nil {

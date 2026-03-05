@@ -49,7 +49,7 @@ func (bp *BoosterPack) Insert() error {
 
 func (bp *BoosterPack) Update() error {
 	bp.UpdatedTime = helper.GetTimestamp()
-	return DB.Model(bp).Updates(bp).Error
+	return DB.Save(bp).Error
 }
 
 func (bp *BoosterPack) Delete() error {

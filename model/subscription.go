@@ -174,6 +174,9 @@ func UpdateUserGroupByPlan(userId int, planId int) error {
 	err = DB.Model(&User{}).Where("id = ?", userId).Update("group", plan.GroupName).Error
 	if err != nil {
 		logger.SysError(fmt.Sprintf("failed to update group for user %d to %s: %s", userId, plan.GroupName, err.Error()))
+	} else {
+		// Invalidate user group cache so the new group takes effect immediately
+		CacheInvalidateUserGroup(userId)
 	}
 	return err
 }
