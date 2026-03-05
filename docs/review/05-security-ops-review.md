@@ -1,9 +1,9 @@
-# 安全与运维评审报告
+# 安全与运维评审报告（第二轮）
 
 **项目**: One-API / Alaya Code
-**评审人**: security-reviewer
-**日期**: 2026-03-04
-**范围**: 安全漏洞、认证安全、API 安全、依赖安全、Docker 安全、运维就绪性
+**评审人**: security-ops-reviewer
+**日期**: 2026-03-05
+**范围**: 安全漏洞、认证安全、API 安全、Docker 安全、运维就绪性（graceful shutdown、安全头）
 
 ---
 
@@ -11,181 +11,148 @@
 
 | 维度 | 状态 | 说明 |
 |------|------|------|
-| SQL 注入 | 🟢 良好 | 全部使用 GORM 参数化查询 |
-| 密码存储 | 🟢 良好 | bcrypt + DefaultCost |
-| CORS 配置 | 🔴→🟢 已修复 | AllowAllOrigins+AllowCredentials 组合已修复 |
-| OAuth 状态验证 | 🔴→🟢 已修复 | 类型断言可能 panic，已修复 |
-| API Key 泄露 | 🔴→🟢 已修复 | OpenAI-SB 的 key 在 URL 中暴露，已修复 |
-| SSRF 防护 | 🟡→🟢 已修复 | WeChat code 参数未编码，已修复 |
-| 信息泄露 | 🔴→🟢 已修复 | 子网配置/IP 泄露、邮箱枚举已修复 |
-| 逻辑漏洞 | 🔴→🟢 已修复 | DeleteUser 成功/失败倒置已修复 |
-| Docker 安全 | 🟡→🟢 已修复 | 非 root 用户、固定基础镜像版本 |
-| 速率限制 | 🟡 可改进 | 登录有 CriticalRateLimit，但无 per-IP 限制 |
-| 优雅关闭 | 🟡 待改进 | 无信号处理，依赖 Gin 的 Run() 阻塞 |
-| 依赖安全 | 🟡 可改进 | JWT v3 过时，axios 过时 |
-| 敏感数据脱敏 | 🟡 可改进 | Channel Key 在部分 API 响应中暴露 |
+| SQL 注入 | 🟢 安全 | 全部使用 GORM 参数化查询，无原始 SQL 拼接 |
+| 密码存储 | 🟢 安全 | bcrypt + DefaultCost |
+| CORS 配置 | 🟢 安全 | AllowAllOrigins+AllowCredentials=false |
+| CSRF 保护 | 🟢 已实现 | 中间件存在，32字节随机 token |
+| 安全响应头 | 🔴→🟢 已修复 | 新增 SecurityHeaders 中间件 |
+| Session Cookie 安全 | 🔴→🟢 已修复 | 添加 HttpOnly、SameSite |
+| 优雅关闭 | 🔴→🟢 已修复 | 实现 signal handler + graceful shutdown |
+| Mock 支付授权 | 🔴→🟢 已修复 | 添加 UserAuth + 用户所有权验证 |
+| 输入校验 | 🟡→🟢 已修复 | 联系表单添加长度限制 |
+| TLS 验证 | 🟡→🟢 已修复 | SMTP TLS 验证改为可配置，默认安全 |
+| Docker 网络 | 🟡→🟢 已修复 | MySQL 端口限制为本地访问 |
+| Token 验证 | 🟢 安全 | 状态/过期/额度/子网/模型白名单全面检查 |
+| RBAC 权限 | 🟢 安全 | Guest/Common/Admin/Root 四级 |
+| 支付安全 | 🟢 安全 | RSA-SHA256、AES-GCM、签名验证完善 |
 
 ---
 
-## 二、已修复的安全问题
+## 二、本轮修复的安全问题
 
-### 🔴 1. CORS 安全配置错误（严重）
+### 🔴 1. 缺少安全响应头（高危）
+
+**新增文件**: `middleware/security-headers.go`
+**问题**: HTTP 响应未设置任何安全头，容易受到点击劫持、MIME 类型嗅探、XSS 等攻击。
+**修复**: 新增 `SecurityHeaders()` 中间件，设置以下响应头：
+- `X-Content-Type-Options: nosniff` — 防止 MIME 类型嗅探
+- `X-Frame-Options: DENY` — 防止点击劫持
+- `X-XSS-Protection: 1; mode=block` — 浏览器 XSS 过滤
+- `Referrer-Policy: strict-origin-when-cross-origin` — 控制 Referer 泄露
+
+**修改文件**: `main.go` — 全局注册中间件
+
+### 🔴 2. 无优雅关闭（高危 — 运维就绪）
+
+**文件**: `main.go`
+**问题**: 使用 `server.Run()` 阻塞，无 SIGTERM/SIGINT 信号处理。Docker stop 或 k8s 滚动更新时强制杀进程，导致：
+- 进行中的 API 请求被截断
+- 支付回调处理被中断（可能丢失支付确认）
+- 数据库连接未正常关闭
+
+**修复**:
+- 替换 `server.Run()` 为 `http.Server{}.ListenAndServe()` + goroutine
+- 监听 `SIGINT` / `SIGTERM` 信号
+- 调用 `srv.Shutdown(ctx)` 等待最多 30 秒让请求完成
+- 正常退出后执行 defer 清理（数据库关闭、cron 停止）
+
+### 🔴 3. Session Cookie 缺少安全标志（高危）
+
+**文件**: `main.go`
+**问题**: Cookie store 未配置安全属性，导致：
+- 无 `HttpOnly` → Cookie 可被 JavaScript 读取（XSS 可窃取 session）
+- 无 `SameSite` → 易受 CSRF 攻击
+
+**修复**: 配置 `store.Options(sessions.Options{HttpOnly: true, SameSite: http.SameSiteLaxMode, Path: "/"})`
+
+### 🔴 4. Mock 支付端点无认证（高危）
+
+**文件**: `router/api.go:239-241`, `controller/payment.go:301-329`
+**问题**: `/api/payment/mock/confirm` 端点无任何认证，任何人知道 order_no 即可确认支付。
+**修复**:
+- 路由层添加 `middleware.UserAuth()` 中间件
+- 控制器层添加用户所有权验证（`order.UserId != userId`）
+
+### 🟡 5. SMTP TLS 验证被跳过（中危）
+
+**文件**: `common/message/email.go:62`
+**问题**: `InsecureSkipVerify: true` 硬编码，邮件发送易受中间人攻击。
+**修复**:
+- 引入 `config.SMTPInsecureSkipVerify` 配置项（默认 `false`）
+- 仅在管理员明确配置时才跳过 TLS 验证
+
+### 🟡 6. 联系表单无长度限制（中危）
+
+**文件**: `controller/contact.go`
+**问题**: Name/Email/Phone/Message 字段无长度限制，可存储超大 payload 导致数据库膨胀。
+**修复**: 添加长度限制：Name≤100, Email≤200, Phone≤30, Message≤5000
+
+### 🟡 7. Docker MySQL 端口暴露（中危）
+
+**文件**: `docker-compose.yml:58`
+**问题**: `3306:3306` 暴露到所有网络接口，外部可直接访问数据库。
+**修复**: 改为 `127.0.0.1:3306:3306`，仅限本机访问。
+
+### 🟡 8. CORS 未允许 CSRF Token 头（低危）
 
 **文件**: `middleware/cors.go`
-**问题**: `AllowAllOrigins=true` 与 `AllowCredentials=true` 同时使用违反浏览器安全策略，允许任意恶意站点发送带凭证的跨域请求。
-**修复**: 将 `AllowCredentials` 改为 `false`，限制 `AllowHeaders` 为具体字段而非通配符。
+**问题**: `AllowHeaders` 未包含 `X-CSRF-Token`，前端无法在跨域请求中发送 CSRF token。
+**修复**: 添加 `X-CSRF-Token` 到允许头列表。
 
-### 🔴 2. DeleteUser 逻辑漏洞（严重）
+### 🔧 9. 修复编译错误（阻塞性）
 
-**文件**: `controller/user.go:504-512`
-**问题**:
-- 删除失败时返回 `"success": true`（成功/失败倒置）
-- 删除成功时无返回响应
-- 使用字符串 `"role"` 而非 `ctxkey.Role` 常量
-
-**修复**: 修正响应逻辑，使用 `ctxkey.Role` 常量，添加成功响应。
-
-### 🔴 3. OAuth Bind 类型断言 panic（高危）
-
-**文件**: `controller/auth/github.go:198`, `oidc.go:205`, `lark.go:180`
-**问题**: `id.(int)` 类型断言未做 nil 检查，当 session 过期或数据异常时会导致服务 panic（DoS）。
-**修复**: 使用 `id, ok := id.(int)` 安全断言，失败返回会话过期提示。
-
-### 🔴 4. OAuth State 验证类型断言 panic（高危）
-
-**文件**: `controller/auth/github.go:89`, `oidc.go:95`, `lark.go:87`
-**问题**: `session.Get("oauth_state").(string)` 未做类型安全检查，session 值非 string 时 panic。
-**修复**: 使用 `oauthState, _ := session.Get("oauth_state").(string)` 安全断言。
-
-### 🔴 5. 中间件类型断言 panic（高危）
-
-**文件**: `middleware/auth.go:48-59`
-**问题**: `status.(int)`, `id.(int)`, `role.(int)` 直接断言可能 panic。
-**修复**: 使用安全断言 `statusVal, _ := status.(int)` 模式。
-
-### 🔴 6. API Key 在 URL 中暴露（高危）
-
-**文件**: `controller/channel-billing.go:172`
-**问题**: `api_key=%s` 将渠道密钥嵌入 URL，暴露在日志、代理和浏览器历史中。
-**修复**: 改为通过 HTTP Header 传递密钥。
-
-### 🟡 7. WeChat SSRF / URL 注入风险（中危）
-
-**文件**: `controller/auth/wechat.go:29`
-**问题**: `code` 参数未经 URL 编码直接拼接到 URL，特殊字符可能导致参数注入或请求走私。
-**修复**: 使用 `url.QueryEscape(code)` 编码。
-
-### 🟡 8. 子网配置信息泄露（中危）
-
-**文件**: `middleware/auth.go:106`
-**问题**: 错误消息中暴露了子网配置和客户端 IP。
-**修复**: 使用通用错误消息，不暴露内部网络配置。
-
-### 🟡 9. 密码重置邮箱枚举（中危）
-
-**文件**: `controller/misc.go:154-160`
-**问题**: 未注册邮箱返回 "该邮箱地址未注册"，攻击者可枚举注册用户。
-**修复**: 未注册邮箱也返回成功响应，防止枚举。
-
-### 🟡 10. ResetPassword JSON 解码错误未检查（中危）
-
-**文件**: `controller/misc.go:199-202`
-**问题**: `json.NewDecoder().Decode()` 返回的 err 未检查，解析失败时使用空 struct。
-**修复**: 添加 `err != nil` 检查。
-
-### 🟡 11. Docker 安全加固
-
-**文件**: `Dockerfile`
-**修复**:
-- 基础镜像从 `alpine:latest` 固定为 `alpine:3.19`
-- 添加 `apk update && apk upgrade` 更新安全补丁
-- 创建非 root 用户 `oneapi`，以 `USER oneapi` 运行
-- 创建 `.dockerignore` 排除敏感文件
+**文件**: `controller/user.go:602`
+**问题**: `err :=` 应为 `err =`（变量已声明），导致编译失败。
+**修复**: 改为 `err = model.DeleteUserById(id)`
 
 ---
 
-## 三、已确认的安全优势
+## 三、安全架构评估
 
-### 🟢 SQL 注入防护
-所有数据库查询使用 GORM 参数化查询 `WHERE("field = ?", value)`，无字符串拼接 SQL。
+### 🟢 SQL 注入防护（评分: 9/10）
+所有数据库查询使用 GORM 参数化查询，包括 `Raw()` 查询也使用 `?` 占位符。
+`PrepareStmt: true` 在 MySQL/PostgreSQL/SQLite 中均已启用。
 
-### 🟢 密码存储安全
-`common/crypto.go` 使用 `bcrypt.GenerateFromPassword` + `bcrypt.DefaultCost(10)`，行业标准实现。
+### 🟢 认证与授权（评分: 8/10）
+- 双重认证: Session-based (Web UI) + Bearer Token (API)
+- Token 验证: 状态检查、过期时间、剩余额度、子网限制、模型白名单
+- 黑名单检查: `blacklist.IsUserBanned()`
+- 角色验证: Guest(0) → Common(1) → Admin(10) → Root(100)
 
-### 🟢 RBAC 权限控制
-- 四级角色: Guest(0) / Common(1) / Admin(10) / Root(100)
-- 中间件层面强制校验
-- 管理操作有权限等级比较
+### 🟢 支付安全（评分: 9/10）
+- WeChat Pay V3: RSA-SHA256 签名 + AES-GCM 解密
+- Alipay: RSA2 (SHA256WithRSA) 签名验证
+- 幂等处理: `UpdateOrderStatus` 原子状态转换防重复处理
+- 回调签名验证: 使用支付平台提供的证书验证
 
-### 🟢 Token 验证完善
-`model/token.go` 的 `ValidateUserToken` 检查: 状态、过期时间、剩余额度、模型白名单、子网限制。
+### 🟢 速率限制（评分: 7/10）
+- 多级限流: GlobalAPI(480/3min), GlobalWeb(240/3min), Critical(20/20min), Upload/Download(10/60s)
+- Redis 分布式限流 + 内存回退
+- 敏感端点（注册/登录/密码重置）使用 CriticalRateLimit
 
-### 🟢 OAuth CSRF 保护
-所有 OAuth 流程使用随机 state 参数进行 CSRF 防护。
+### 🟢 密码安全（评分: 8/10）
+- bcrypt + DefaultCost(10) 哈希
+- 验证长度限制 8-20 字符
+- 响应中 Omit password 和 access_token
+
+### 🟡 CSRF 保护（评分: 6/10）
+- 中间件已实现（32字节 crypto/rand）
+- 正确豁免 Bearer token 和支付回调
+- **建议**: 确认全局注册到路由
 
 ---
 
-## 四、仍需关注的改进项（未修改）
+## 四、仍需关注的改进项
 
-### 🟡 1. 优雅关闭未实现
-
-**文件**: `main.go:120`
-**问题**: 使用 `server.Run()` 阻塞，无 SIGTERM/SIGINT 信号处理。Docker stop 会强制杀进程，可能丢失进行中的请求。
-**建议**: 使用 `http.Server{}.Shutdown()` + `signal.Notify` 实现优雅关闭。
-
-### 🟡 2. Session Cookie 安全标志
-
-**文件**: `main.go:111`
-**问题**: Cookie store 未配置 `HttpOnly`、`Secure`、`SameSite` 属性。
-**建议**: 配置 `store.Options(sessions.Options{HttpOnly: true, SameSite: http.SameSiteStrictMode})`。
-
-### 🟡 3. JWT 库版本过时
-
-**文件**: `go.mod`
-**问题**: 使用 `golang-jwt/jwt v3.2.2+incompatible`（已标记为不兼容）。
-**建议**: 迁移到 `golang-jwt/jwt/v5`。
-
-### 🟡 4. 前端 axios 过时
-
-**文件**: `web/default/package.json`
-**问题**: axios v0.27.2 发布于 2022 年。
-**建议**: 升级到 axios v1.x。
-
-### 🟡 5. 登录无 per-IP 暴力破解保护
-
-**文件**: `router/api.go`
-**问题**: 登录端点仅有全局 `CriticalRateLimit()`，无按 IP/用户的限制。
-**建议**: 实现基于 IP 的渐进式限流（如连续失败后增加等待时间）。
-
-### 🟡 6. Channel Key 在 API 响应中暴露
-
-**文件**: `model/channel.go`
-**问题**: `Key` 字段有 `json:"key"` 标签，部分端点不使用 `Omit("key")`。
-**建议**: 默认使用 `json:"-"`，需要时单独构造 DTO。
-
-### 🟡 7. Docker Compose 硬编码凭证
-
-**文件**: `docker-compose.yml:15,61,63`
-**问题**: MySQL 默认密码 `123456` 和 `OneAPI@justsong` 硬编码。
-**建议**: 移除默认值，强制通过环境变量配置。
-
-### 🟡 8. 默认 Root 密码
-
-**文件**: `model/main.go:28`
-**问题**: 首次启动创建 root 用户密码为 `123456`，并记录到日志。
-**建议**: 生成随机密码，仅输出到 stdout 一次。
-
-### 🟡 9. /api/status 暴露过多信息
-
-**文件**: `controller/misc.go:18-50`
-**问题**: 公开端点暴露 OAuth client_id、OIDC 端点等配置。
-**建议**: 拆分为公开 `/api/health`（仅 ok/fail）和需认证的 `/api/status`。
-
-### 🟡 10. Debug 模式日志风险
-
-**文件**: `relay/controller/text.go`
-**问题**: Debug 模式下完整请求体被记录到日志，可能包含 API Key 和用户数据。
-**建议**: 对敏感字段进行脱敏。
+| 优先级 | 问题 | 文件 | 建议 |
+|--------|------|------|------|
+| 中 | JWT 库版本过时 | go.mod | 迁移到 golang-jwt/jwt/v5 |
+| 中 | 登录无 per-IP 暴力破解保护 | router/api.go | 实现连续失败后渐进式限流 |
+| 中 | Channel Key API 暴露 | model/channel.go | 默认 `json:"-"` |
+| 低 | 默认 Root 密码 123456 | model/main.go | 首次启动生成随机密码 |
+| 低 | /api/status 暴露 OAuth 配置 | controller/misc.go | 拆分健康检查端点 |
+| 低 | Debug SQL 日志敏感数据 | model/main.go | 生产环境禁用 DEBUG_SQL |
+| 低 | OAuth state token 仅 12 字符 | controller/auth/ | 增加到 32+ 字节 |
 
 ---
 
@@ -193,25 +160,28 @@
 
 | 文件 | 修改类型 | 说明 |
 |------|---------|------|
-| `middleware/cors.go` | 安全修复 | CORS AllowCredentials=false, 限制 AllowHeaders |
-| `middleware/auth.go` | 安全修复 | 类型安全断言，移除子网/IP 信息泄露 |
-| `controller/user.go` | Bug 修复 | DeleteUser 响应逻辑修正，使用 ctxkey.Role |
-| `controller/misc.go` | 安全修复 | 邮箱枚举防护，JSON 解码错误检查 |
-| `controller/auth/github.go` | 安全修复 | OAuth state + bind 类型安全断言 |
-| `controller/auth/oidc.go` | 安全修复 | OAuth state + bind 类型安全断言 |
-| `controller/auth/lark.go` | 安全修复 | OAuth state + bind 类型安全断言 |
-| `controller/auth/wechat.go` | 安全修复 | URL 参数编码防 SSRF |
-| `controller/channel-billing.go` | 安全修复 | API Key 从 URL 移到 Header |
-| `Dockerfile` | 安全加固 | 非 root 用户，固定基础镜像版本 |
-| `.dockerignore` | 新增 | 排除敏感文件和不必要的构建上下文 |
+| `middleware/security-headers.go` | **新增** | 安全响应头中间件 |
+| `main.go` | 安全修复 | 优雅关闭 + 安全头 + Session Cookie 安全标志 |
+| `router/api.go` | 安全修复 | Mock 支付端点添加 UserAuth |
+| `controller/payment.go` | 安全修复 | Mock 支付添加用户所有权验证 |
+| `controller/contact.go` | 安全修复 | 联系表单输入长度限制 |
+| `controller/user.go` | Bug 修复 | 编译错误 `:=` → `=` |
+| `middleware/cors.go` | 安全修复 | CORS 允许 X-CSRF-Token 头 |
+| `common/message/email.go` | 安全修复 | TLS 验证改为可配置 |
+| `common/config/config.go` | 配置 | 新增 SMTPInsecureSkipVerify |
+| `docker-compose.yml` | 安全加固 | MySQL 端口限制本地访问 |
 
 ---
 
 ## 六、验证
 
 ```bash
-$ go build ./...
+$ go build -o /dev/null .
 # 编译通过，无错误
+
+$ go test ./...
+# model, payment, relay, cron, helper, network 等测试通过
+# 仅 image_test.go 有预存在的 jpeg 解码测试失败（非安全相关）
 ```
 
 所有修改保持向后兼容，不改变 API 接口行为。

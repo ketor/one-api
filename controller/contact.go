@@ -34,6 +34,13 @@ func SubmitContactMessage(c *gin.Context) {
 		})
 		return
 	}
+	if len(req.Name) > 100 || len(req.Email) > 200 || len(req.Phone) > 30 || len(req.Message) > 5000 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "输入内容超出长度限制",
+		})
+		return
+	}
 	if req.Email != "" && !emailRegexp.MatchString(req.Email) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

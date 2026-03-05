@@ -235,9 +235,9 @@ func SetApiRouter(router *gin.Engine) {
 			paymentRoute.GET("/providers", controller.GetAvailableProviders)
 		}
 
-		// Mock payment confirm (only when mock mode enabled)
+		// Mock payment confirm (only when mock mode enabled, requires auth)
 		if payment.GetConfig().IsMockEnabled() {
-			apiRouter.POST("/payment/mock/confirm", controller.MockPaymentConfirm)
+			apiRouter.POST("/payment/mock/confirm", middleware.UserAuth(), controller.MockPaymentConfirm)
 		}
 
 		// Admin routes for usage analytics

@@ -65,6 +65,7 @@ var SMTPPort = 587
 var SMTPAccount = ""
 var SMTPFrom = ""
 var SMTPToken = ""
+var SMTPInsecureSkipVerify = false
 
 var GitHubClientId = ""
 var GitHubClientSecret = ""

@@ -582,7 +582,14 @@ func DeleteUser(c *gin.Context) {
 
 func DeleteSelf(c *gin.Context) {
 	id := c.GetInt("id")
-	user, _ := model.GetUserById(id, false)
+	user, err := model.GetUserById(id, false)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户不存在",
+		})
+		return
+	}
 
 	if user.Role == model.RoleRootUser {
 		c.JSON(http.StatusOK, gin.H{
@@ -592,7 +599,7 @@ func DeleteSelf(c *gin.Context) {
 		return
 	}
 
-	err := model.DeleteUserById(id)
+	err = model.DeleteUserById(id)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -816,7 +823,13 @@ func ManageUser(c *gin.Context) {
 		Username: req.Username,
 	}
 	// Fill attributes
-	model.DB.Where(&user).First(&user)
+	if err := model.DB.Where(&user).First(&user).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户不存在",
+		})
+		return
+	}
 	if user.Id == 0 {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

@@ -305,6 +305,8 @@ func MockPaymentConfirm(c *gin.Context) {
 		return
 	}
 
+	userId := c.GetInt(ctxkey.Id)
+
 	var req struct {
 		OrderNo string `json:"order_no"`
 	}
@@ -316,6 +318,10 @@ func MockPaymentConfirm(c *gin.Context) {
 	order, err := model.GetOrderByOrderNo(req.OrderNo)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"success": false, "message": "订单不存在"})
+		return
+	}
+	if order.UserId != userId {
+		c.JSON(http.StatusOK, gin.H{"success": false, "message": "无权操作此订单"})
 		return
 	}
 	if order.Status != model.OrderStatusPending {
@@ -332,15 +338,17 @@ func MockPaymentConfirm(c *gin.Context) {
 
 // handlePaymentSuccess 支付成功后的统一处理逻辑（幂等）
 func handlePaymentSuccess(order *model.Order, tradeNo string) {
-	// Idempotency: skip if already paid
+	// Idempotency: skip if already paid (fast path)
 	if order.Status == model.OrderStatusPaid {
 		return
 	}
 
-	// Update order status to paid
+	// Atomic status transition: only one goroutine can succeed moving Pending→Paid.
+	// This ensures idempotency even under concurrent callbacks.
 	err := model.UpdateOrderStatus(order.Id, model.OrderStatusPaid)
 	if err != nil {
-		logger.SysError(fmt.Sprintf("handlePaymentSuccess: update order %d status failed: %s", order.Id, err.Error()))
+		// If transition failed, the order was likely already processed by a concurrent callback
+		logger.SysError(fmt.Sprintf("handlePaymentSuccess: update order %d status failed (likely already processed): %s", order.Id, err.Error()))
 		return
 	}
 

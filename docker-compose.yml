@@ -55,7 +55,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
     ports:
-      - '3306:3306'
+      - '127.0.0.1:3306:3306'
     environment:
       TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD:-OneAPI@justsong}'

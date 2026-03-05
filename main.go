@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
+	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -117,9 +122,15 @@ func main() {
 	//server.Use(gzip.Gzip(gzip.DefaultCompression))
 	server.Use(middleware.RequestId())
 	server.Use(middleware.Language())
+	server.Use(middleware.SecurityHeaders())
 	middleware.SetUpLogger(server)
 	// Initialize session store
 	store := cookie.NewStore([]byte(config.SessionSecret))
+	store.Options(sessions.Options{
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	})
 	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS)
@@ -127,9 +138,28 @@ func main() {
 	if port == "" {
 		port = strconv.Itoa(*common.Port)
 	}
-	logger.SysLogf("server started on http://localhost:%s", port)
-	err = server.Run(":" + port)
-	if err != nil {
-		logger.FatalLog("failed to start HTTP server: " + err.Error())
+
+	// Graceful shutdown
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: server,
 	}
+	go func() {
+		logger.SysLogf("server started on http://localhost:%s", port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.FatalLog("failed to start HTTP server: " + err.Error())
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.SysLog("shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.FatalLog("server forced to shutdown: " + err.Error())
+	}
+	logger.SysLog("server exited gracefully")
 }
