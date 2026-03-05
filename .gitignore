@@ -13,6 +13,9 @@ cmd.md
 /one-api
 /one-api-server
 server.log
-.claude/
+.claude/teams/
+.claude/tasks/
+.claude/worktrees/
+.claude/memory/
 temp
 .DS_Store
