@@ -55,6 +55,13 @@ func GetSubscriptionById(id int) (*Subscription, error) {
 	return &sub, err
 }
 
+// GetAllSubscriptions returns paginated subscriptions for admin listing.
+func GetAllSubscriptions(startIdx int, num int) ([]*Subscription, error) {
+	var subs []*Subscription
+	err := DB.Order("id desc").Limit(num).Offset(startIdx).Find(&subs).Error
+	return subs, err
+}
+
 func GetActiveSubscriptionsByUserIds(userIds []int) (map[int]*Subscription, error) {
 	var subs []*Subscription
 	err := DB.Where("user_id IN ? AND status = ?", userIds, SubscriptionStatusActive).Find(&subs).Error

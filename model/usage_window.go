@@ -183,6 +183,97 @@ func CleanExpiredWindows(maxAgeSec int64) error {
 	return nil
 }
 
+// GetUsageHistory returns paginated usage window records for a user within a time range.
+func GetUsageHistory(userId int, startTimestamp int64, endTimestamp int64, startIdx int, num int) ([]*UsageWindow, error) {
+	var records []*UsageWindow
+	err := DB.Where("user_id = ? AND request_time >= ? AND request_time <= ?",
+		userId, startTimestamp, endTimestamp).
+		Order("request_time desc").
+		Limit(num).
+		Offset(startIdx).
+		Find(&records).Error
+	return records, err
+}
+
+// ModelUsageStat represents aggregated usage statistics per model.
+type ModelUsageStat struct {
+	ModelName    string `json:"model_name" gorm:"column:model_name"`
+	RequestCount int64  `json:"request_count" gorm:"column:request_count"`
+	TotalTokens  int64  `json:"total_tokens" gorm:"column:total_tokens"`
+	TotalQuota   int64  `json:"total_quota" gorm:"column:total_quota"`
+}
+
+// GetUsageByModel returns aggregated usage statistics grouped by model name.
+func GetUsageByModel(startTimestamp int64, endTimestamp int64) ([]ModelUsageStat, error) {
+	var stats []ModelUsageStat
+	err := DB.Model(&UsageWindow{}).
+		Where("request_time >= ? AND request_time <= ?", startTimestamp, endTimestamp).
+		Select("model_name, COUNT(*) as request_count, COALESCE(SUM(tokens_used), 0) as total_tokens, COALESCE(SUM(quota_used), 0) as total_quota").
+		Group("model_name").
+		Order("request_count desc").
+		Scan(&stats).Error
+	return stats, err
+}
+
+// TopUserStat represents aggregated usage statistics per user.
+type TopUserStat struct {
+	UserId       int   `json:"user_id" gorm:"column:user_id"`
+	RequestCount int64 `json:"request_count" gorm:"column:request_count"`
+	TotalTokens  int64 `json:"total_tokens" gorm:"column:total_tokens"`
+	TotalQuota   int64 `json:"total_quota" gorm:"column:total_quota"`
+}
+
+// GetTopUsers returns the top users by request count within a time range.
+func GetTopUsers(startTimestamp int64, endTimestamp int64, limit int) ([]TopUserStat, error) {
+	var stats []TopUserStat
+	err := DB.Model(&UsageWindow{}).
+		Where("request_time >= ? AND request_time <= ?", startTimestamp, endTimestamp).
+		Select("user_id, COUNT(*) as request_count, COALESCE(SUM(tokens_used), 0) as total_tokens, COALESCE(SUM(quota_used), 0) as total_quota").
+		Group("user_id").
+		Order("request_count desc").
+		Limit(limit).
+		Scan(&stats).Error
+	return stats, err
+}
+
+// PlatformUsageOverview represents platform-wide usage metrics.
+type PlatformUsageOverview struct {
+	TotalRequests int64 `json:"total_requests_24h"`
+	TotalTokens   int64 `json:"total_tokens_24h"`
+	TotalQuota    int64 `json:"total_quota_24h"`
+	ActiveUsers   int64 `json:"active_users_24h"`
+}
+
+// GetPlatformUsageOverview returns platform-wide usage metrics for the last 24 hours.
+func GetPlatformUsageOverview(since int64) (*PlatformUsageOverview, error) {
+	overview := &PlatformUsageOverview{}
+
+	if err := DB.Model(&UsageWindow{}).Where("request_time >= ?", since).Count(&overview.TotalRequests).Error; err != nil {
+		return nil, err
+	}
+
+	var tokenSum struct{ Sum int64 }
+	DB.Model(&UsageWindow{}).
+		Where("request_time >= ?", since).
+		Select("COALESCE(SUM(tokens_used), 0) as sum").
+		Scan(&tokenSum)
+	overview.TotalTokens = tokenSum.Sum
+
+	var quotaSum struct{ Sum int64 }
+	DB.Model(&UsageWindow{}).
+		Where("request_time >= ?", since).
+		Select("COALESCE(SUM(quota_used), 0) as sum").
+		Scan(&quotaSum)
+	overview.TotalQuota = quotaSum.Sum
+
+	DB.Model(&UsageWindow{}).
+		Where("request_time >= ?", since).
+		Distinct("user_id").
+		Count(&overview.ActiveUsers)
+
+	return overview, nil
+}
+
 // CleanUserExpiredWindows removes expired entries from a specific user's Redis sorted set.
 func CleanUserExpiredWindows(userId int, windowDurationSec int64) {
 	if !common.RedisEnabled {

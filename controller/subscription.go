@@ -636,8 +636,7 @@ func GetAllSubscriptions(c *gin.Context) {
 	if p < 0 {
 		p = 0
 	}
-	var subscriptions []*model.Subscription
-	err := model.DB.Order("id desc").Limit(config.ItemsPerPage).Offset(p * config.ItemsPerPage).Find(&subscriptions).Error
+	subscriptions, err := model.GetAllSubscriptions(p*config.ItemsPerPage, config.ItemsPerPage)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

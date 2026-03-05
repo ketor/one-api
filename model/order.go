@@ -137,8 +137,15 @@ func UpdateOrderStatus(id int, newStatus int) error {
 
 func UpdateOrderPayment(id int, paymentMethod string, paymentTradeNo string) error {
 	return DB.Model(&Order{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"payment_method":  paymentMethod,
+		"payment_method":   paymentMethod,
 		"payment_trade_no": paymentTradeNo,
-		"updated_time":    helper.GetTimestamp(),
+		"updated_time":     helper.GetTimestamp(),
 	}).Error
+}
+
+// GetAllOrders returns paginated orders for admin listing.
+func GetAllOrders(startIdx int, num int) ([]*Order, error) {
+	var orders []*Order
+	err := DB.Order("id desc").Limit(num).Offset(startIdx).Find(&orders).Error
+	return orders, err
 }

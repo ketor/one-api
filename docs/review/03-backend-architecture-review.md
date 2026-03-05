@@ -312,3 +312,36 @@ type Adaptor interface {
 | 配置管理 | 🟢 | 环境变量 + 运行时配置 + 缓存同步 |
 
 **总评**: 🟢 **良好**。项目后端架构整体设计合理，新增的订阅计费模块与现有架构融合良好。本次评审修复了 3 处代码缺陷（重复迁移、错误忽略），无 breaking change。主要建议集中在事务管理和零值更新两个方面。
+
+---
+
+## 12. 第二轮评审补充修复 (2026-03-05)
+
+### 12.1 FillUser 系列方法错误传播修复
+
+**问题**: `model/user.go` 中 6 个 `FillUserBy*` 方法忽略了 GORM 查询错误，始终返回 nil。
+- `FillUserById()`, `FillUserByEmail()`, `FillUserByGitHubId()`, `FillUserByLarkId()`, `FillUserByOidcId()`, `FillUserByWeChatId()`, `FillUserByUsername()`
+
+**修复**: 所有方法现在正确返回 `DB.Where(...).First(user).Error`，调用方可以区分"不存在"和"查询失败"。
+
+### 12.2 Controller 错误处理修复
+
+- `DeleteSelf`: 修复 `GetUserById` 返回错误时仍继续执行的问题
+- `ManageUser`: 修复 `DB.Where(&user).First(&user)` 不检查错误的问题
+
+### 12.3 Controller 直接 DB 访问重构
+
+**问题**: 多个 controller 函数直接使用 `model.DB` 进行查询，违反分层原则。
+
+**修复**: 将 DB 查询逻辑封装到 model 层：
+- `controller/order.go:GetAllOrders` → `model.GetAllOrders(startIdx, num)`
+- `controller/subscription.go:GetAllSubscriptions` → `model.GetAllSubscriptions(startIdx, num)`
+- `controller/usage.go:GetUsageHistory` → `model.GetUsageHistory(userId, start, end, startIdx, num)`
+- `controller/usage.go:GetPlatformUsageOverview` → `model.GetPlatformUsageOverview(since)`
+- `controller/usage.go:GetUsageByModel` → `model.GetUsageByModel(start, end)`
+- `controller/usage.go:GetTopUsers` → `model.GetTopUsers(start, end, limit)`
+
+新增 model 层函数：
+- `model/order.go`: `GetAllOrders()`
+- `model/subscription.go`: `GetAllSubscriptions()`
+- `model/usage_window.go`: `GetUsageHistory()`, `GetPlatformUsageOverview()`, `GetUsageByModel()`, `GetTopUsers()` + 对应的 struct 类型定义

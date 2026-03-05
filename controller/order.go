@@ -68,8 +68,7 @@ func GetAllOrders(c *gin.Context) {
 	if p < 0 {
 		p = 0
 	}
-	var orders []*model.Order
-	err := model.DB.Order("id desc").Limit(config.ItemsPerPage).Offset(p * config.ItemsPerPage).Find(&orders).Error
+	orders, err := model.GetAllOrders(p*config.ItemsPerPage, config.ItemsPerPage)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
