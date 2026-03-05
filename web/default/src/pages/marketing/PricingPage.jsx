@@ -181,7 +181,7 @@ const PricingPage = () => {
       {/* ══════ Hero (白底 LIGHT) ══════ */}
       <section className='xyz-section-light py-20'>
         <div className='max-w-xyz mx-auto px-5 text-center'>
-          <h1 className='text-[64px] font-medium leading-[76px] text-xyz-gray-10 mb-4'>
+          <h1 className='text-3xl sm:text-5xl md:text-[64px] font-medium leading-tight sm:leading-tight md:leading-[76px] text-xyz-gray-10 mb-4'>
             <BlurText
               text={t('pricing.hero.title')}
               delay={80}

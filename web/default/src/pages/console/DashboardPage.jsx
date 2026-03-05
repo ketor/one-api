@@ -263,8 +263,9 @@ const DashboardPage = () => {
               />
               <Tooltip
                 contentStyle={{
-                  background: '#fff',
-                  border: 'none',
+                  background: 'hsl(var(--card))',
+                  color: 'hsl(var(--card-foreground))',
+                  border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 }}
@@ -308,8 +309,9 @@ const DashboardPage = () => {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: '#fff',
-                    border: 'none',
+                    background: 'hsl(var(--card))',
+                    color: 'hsl(var(--card-foreground))',
+                    border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   }}

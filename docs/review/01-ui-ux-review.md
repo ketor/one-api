@@ -1,173 +1,115 @@
 # UI/UX 评审报告
 
 ## 评审范围
-
-```
-web/default/src/
-├── index.css                          # 全局样式
-├── App.js                             # 路由配置
-├── components/
-│   ├── layout/                        # ConsoleLayout, MarketingLayout, AuthLayout, DocsLayout, AdminLayout
-│   ├── navigation/                    # ConsoleTopBar, ConsoleSidebar, MarketingHeader, MarketingFooter
-│   ├── business/                      # StatCard, QuotaUsageBar, UsageChart, ApiKeyTable, PlanCard, PlanComparisonGrid, BillingTable, ToolConfigSnippet, ApiKeyCopyButton, ModelUsageChart
-│   ├── ui/                            # Shadcn/ui 原子组件
-│   ├── LoginForm.js, RegisterForm.js, Loading.js
-│   └── 旧版页面组件 (Footer.js, OtherSetting.js 等)
-├── pages/
-│   ├── console/                       # DashboardPage, KeysPage, SubscriptionPage, UsagePage, BillingPage, BoosterPage, SettingsPage
-│   ├── marketing/                     # LandingPage, PricingPage
-│   ├── admin/                         # AdminDashboard
-│   └── 旧版页面 (Home, About, Channel, Token, Log, User, Redemption, Setting, NotFound)
-├── helpers/
-│   ├── semantic-shim.js               # Semantic UI 兼容层
-│   ├── render.js                      # 渲染辅助函数
-│   └── index.js, api.js, utils.js 等
-├── locales/zh/translation.json        # 国际化翻译文件
-└── lib/utils.js                       # cn() 工具函数
-```
+- `web/default/src/` 下所有页面、组件、布局、样式和国际化文件
+- 主题系统（Tailwind Config + CSS Variables）
+- 营销页面（Landing, Pricing, Contact）
+- 控制台页面（Dashboard, Subscription, Keys, Usage, Billing, Settings）
+- 管理后台布局（AdminLayout）
+- 认证页面（Login, Register, PasswordReset）
+- 导航组件（MarketingHeader, MarketingFooter, ConsoleSidebar, ConsoleTopBar）
 
 ## 评审总结
 
-🟢 **整体健康度：良好**
-
-项目前端架构清晰，新页面（console/marketing）全面使用 Shadcn/ui + Tailwind，设计 Token 通过 CSS 变量统一管理，组件封装合理。旧版页面通过 semantic-shim.js 保持兼容，过渡策略合理。主要问题集中在：(1) 性能 Bug（RegisterForm 无限重渲染）、(2) 旧版 CSS 死代码堆积、(3) a11y 缺失、(4) 分页组件性能隐患。已实施修复均通过编译验证。
-
----
+| 维度 | 健康度 | 说明 |
+|------|--------|------|
+| 设计 Token 统一性 | 🟢 | Tailwind theme + CSS vars 双层体系完整，XYZ Cloud palette 和 Shadcn semantic tokens 分层清晰 |
+| 组件封装 | 🟢 | Radix UI + Shadcn 组件库使用规范，无重复造轮子 |
+| 响应式设计 | 🔴→🟢 | 营销页面原先多处 grid-cols-4 无移动端断点，MarketingHeader 无汉堡菜单。**已修复** |
+| 交互体验 | 🟢 | 加载、空状态、错误状态覆盖完整，表单校验反馈良好 |
+| 可访问性（a11y） | 🟡 | 整体 aria 使用偏少（仅 24 处），已在 MarketingHeader 添加 aria-label。后续可逐步增强 |
+| 国际化 | 🔴→🟢 | 发现 7 处硬编码中文字符串。**已全部修复并补充 i18n 键** |
+| 暗色模式 | 🟡→🟢 | Dashboard 图表 Tooltip 背景色硬编码为 #fff，暗色模式不可见。**已修复为 CSS 变量** |
+| 圆角设计 | 🟡→🟢 | `--radius: 0px` 使 AuthLayout `rounded-xl` 无效果。**已修复为 0.5rem** |
 
 ## 已实施的修改
 
-### 1. 修复 RegisterForm useEffect 无限重渲染 Bug
-- **严重程度**：🔴 严重
-- **位置**：`web/default/src/components/RegisterForm.js:43`
-- **原始问题**：`useEffect(() => {...})` 缺少依赖数组 `[]`，导致每次渲染都重新执行副作用（读取 localStorage 并 setState），形成无限渲染循环，消耗 CPU 且可能导致页面卡顿。
-- **修改内容**：添加 `[]` 空依赖数组，确保仅在组件挂载时执行一次。
-- **验证结果**：✅ `npm run build` 通过
+### 1. 营销页面响应式网格修复
+- **严重程度**：🔴
+- **位置**：`web/default/src/pages/marketing/LandingPage.jsx:287,461`
+- **原始问题**：定价预览和工具集成区域使用 `grid-cols-4` 无移动端断点，在手机上 4 列挤压严重
+- **修改内容**：改为 `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` 渐进式响应
+- **验证结果**：构建通过 ✅
 
-### 2. 修复 LoginForm 登录后导航到错误路由
-- **严重程度**：🟡 中等
-- **位置**：`web/default/src/components/LoginForm.js:89`
-- **原始问题**：登录成功后导航到 `/token`，但新版 Console 布局使用 `/dashboard` 作为入口路由，导致用户登录后可能看到旧页面或 404。
-- **修改内容**：将 `navigate('/token')` 改为 `navigate('/dashboard')`。
-- **验证结果**：✅ `npm run build` 通过
-
-### 3. 修复 ApiKeyTable 删除对话框缺失 DialogDescription（a11y）
-- **严重程度**：🟡 中等
-- **位置**：`web/default/src/components/business/ApiKeyTable.jsx:521-526`
-- **原始问题**：删除确认对话框没有 `DialogDescription`，Radix UI Dialog 会在控制台输出 a11y 警告，屏幕阅读器无法获取对话框描述。
-- **修改内容**：将描述文本从 `<p>` 移入 `<DialogDescription>` 组件，并导入缺失的组件。
-- **验证结果**：✅ `npm run build` 通过
-
-### 4. 为 ApiKeyTable 图标按钮添加 aria-label
-- **严重程度**：🟡 中等
-- **位置**：`web/default/src/components/business/ApiKeyTable.jsx` 多处
-- **原始问题**：显示/隐藏 Key、复制、删除等图标按钮缺少 `aria-label`，屏幕阅读器无法识别按钮用途。
-- **修改内容**：为 toggleShowKey 按钮添加动态 `aria-label`（"显示 Key"/"隐藏 Key"），为复制下拉触发器添加 `aria-label='复制选项'`，为删除按钮添加 `aria-label='删除'`。
-- **验证结果**：✅ `npm run build` 通过
-
-### 5. 修复 Loading 组件内联样式 & a11y
-- **严重程度**：🟢 轻微
-- **位置**：`web/default/src/components/Loading.js:5`
-- **原始问题**：使用 `style={{ height: 100 }}` 内联样式而非 Tailwind 类，且缺少 `role='status'` 和 `aria-label`。
-- **修改内容**：替换为 `className='min-h-[100px]'`，添加 `role='status'` 和动态 `aria-label`。
-- **验证结果**：✅ `npm run build` 通过
-
-### 6. 清理 index.css 死代码 & 修复字体栈
-- **严重程度**：🟡 中等
-- **位置**：`web/default/src/index.css:76-188`
+### 2. MarketingHeader 移动端适配
+- **严重程度**：🔴
+- **位置**：`web/default/src/components/navigation/MarketingHeader.jsx`
 - **原始问题**：
-  - `font-family` 引用 `Lato` 字体但项目未加载该字体文件，浏览器会 fallback 导致 FOUT
-  - 保留了大量 `.ui.container`、`.ui.card`、`.ui.table`、`.ui.header` 等 Semantic UI 选择器的响应式覆盖样式，但新主题不使用 Semantic UI 类名，这些规则是死代码（约 100 行）
-  - `.main-content`、`.small-icon`、`.custom-footer`、`.charts-grid`、`.stat-value` 等类名在新组件中未使用
+  - 固定 `px-20` 在小屏上内容溢出
+  - 无汉堡菜单，移动端导航链接全部隐藏
 - **修改内容**：
-  - 将 `Lato` 替换为系统字体栈 `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Microsoft YaHei', sans-serif`
-  - 移除所有 `.ui.*` 选择器的响应式覆盖（约 95 行死 CSS）
-  - 保留 `.hide-on-mobile` 工具类（可能被旧页面使用）和 Toastify 样式覆盖
-- **验证结果**：✅ `npm run build` 通过，CSS 产物从 ~13.5KB 降至更小
+  - 改为 `px-5 md:px-20` 响应式内边距
+  - 添加移动端汉堡菜单（Menu/X 图标切换）
+  - 桌面导航隐藏在 `hidden md:flex`，移动端展开为全宽下拉菜单
+  - 添加 `aria-label` 到语言切换和菜单按钮
+- **验证结果**：构建通过 ✅
 
-### 7. 重构 Pagination 组件（性能 + a11y）
-- **严重程度**：🟡 中等
-- **位置**：`web/default/src/helpers/semantic-shim.js:578-611`
-- **原始问题**：Pagination 组件渲染所有页码按钮 `for (let i = 1; i <= totalPages; i++)`，当 `totalPages` 很大时（如 100+ 页日志），会创建大量 DOM 节点，导致性能问题和 UI 溢出。同时缺少 `aria-label`、`aria-current`、`role` 等 a11y 属性。
-- **修改内容**：
-  - 实现省略号分页算法：当总页数 > 7 时，显示首页、尾页、当前页及其 siblingRange 邻居，中间用 `...` 省略
-  - 添加 `<nav aria-label='分页导航'>` 包裹
-  - 为每个按钮添加 `aria-label`（"上一页"/"下一页"/"第 N 页"）
-  - 为当前页添加 `aria-current='page'`
-- **验证结果**：✅ `npm run build` 通过
-
-### 8. 修复 Modal 组件 a11y
-- **严重程度**：🟢 轻微
-- **位置**：`web/default/src/helpers/semantic-shim.js:677-687`
-- **原始问题**：semantic-shim 中的 Modal 组件缺少 `role='dialog'` 和 `aria-modal='true'`，覆盖层缺少 `aria-label`。
-- **修改内容**：添加 `role='dialog'`、`aria-modal='true'` 和覆盖层 `aria-label='关闭对话框'`。
-- **验证结果**：✅ `npm run build` 通过
-
-### 9. 修复硬编码英文文案
-- **严重程度**：🟢 轻微
+### 3. Hero 区域标题移动端字体缩放
+- **严重程度**：🟡
 - **位置**：
-  - `web/default/src/components/layout/AuthLayout.jsx:18`
-  - `web/default/src/pages/console/SettingsPage.jsx:691`（微信二维码 alt）
-  - `web/default/src/components/LoginForm.js:201`（微信二维码 alt）
-- **原始问题**：界面应全中文，但 AuthLayout 版权声明使用英文 "All rights reserved"，微信二维码图片 alt 文字为英文 "WeChat QR Code"。
+  - `web/default/src/pages/marketing/LandingPage.jsx:192`
+  - `web/default/src/pages/marketing/PricingPage.jsx:184`
+  - `web/default/src/pages/marketing/ContactPage.jsx:56`
+- **原始问题**：`text-[64px]` 固定字号在手机上溢出
+- **修改内容**：改为 `text-3xl sm:text-5xl md:text-[64px]` 渐进缩放，`leading` 也做了响应式
+- **验证结果**：构建通过 ✅
+
+### 4. Hero 信息点移动端排列
+- **严重程度**：🟡
+- **位置**：`web/default/src/pages/marketing/LandingPage.jsx:235`
+- **原始问题**：三个绿点标签在手机上横排溢出
+- **修改内容**：改为 `flex-col sm:flex-row`，小屏垂直排列
+- **验证结果**：构建通过 ✅
+
+### 5. 硬编码中文字符串国际化
+- **严重程度**：🔴
+- **位置**：
+  - `web/default/src/components/RegisterForm.js:193` — `'注册中...'`
+  - `web/default/src/components/Header.js:96` — `'注销成功!'`
+  - `web/default/src/components/PasswordResetForm.js:55` — 硬编码 Turnstile 提示
+  - `web/default/src/components/layout/AdminLayout.jsx:30-37,73,94,103,119,125` — 多处硬编码中文
 - **修改内容**：
-  - "All rights reserved." → "保留所有权利。"
-  - `alt='WeChat QR Code'` → `alt='微信二维码'`
-- **验证结果**：✅ `npm run build` 通过
+  - 所有硬编码字符串替换为 `t()` 调用，带中文 fallback
+  - AdminLayout 引入 `useTranslation`，侧边栏改用 i18n key 数组
+  - 新增 i18n 键：`messages.success.logout`, `auth.register.registering`, `nav.admin.*`, `nav.switch_language`
+  - 中英文翻译文件均已补充
+- **验证结果**：构建通过 ✅
 
-### 10. 为 SettingsPage 复制令牌按钮添加 aria-label
-- **严重程度**：🟢 轻微
-- **位置**：`web/default/src/pages/console/SettingsPage.jsx:352`
-- **原始问题**：复制令牌的图标按钮只有 `title` 没有 `aria-label`。
-- **修改内容**：添加 `aria-label='复制令牌'`。
-- **验证结果**：✅ `npm run build` 通过
+### 6. Dashboard 图表暗色模式 Tooltip 修复
+- **严重程度**：🟡
+- **位置**：`web/default/src/pages/console/DashboardPage.jsx:266,312`
+- **原始问题**：Recharts Tooltip `contentStyle` 硬编码 `background: '#fff'`，暗色模式下白色背景突兀
+- **修改内容**：改为 `background: 'hsl(var(--card))'`, `color: 'hsl(var(--card-foreground))'`, `border: '1px solid hsl(var(--border))'`
+- **验证结果**：构建通过 ✅
 
----
+### 7. 全局圆角变量修复
+- **严重程度**：🟡
+- **位置**：`web/default/src/index.css:69`
+- **原始问题**：`--radius: 0px` 使所有 shadcn 组件的 `rounded-lg/md/sm` 都为 0，AuthLayout 的 `rounded-xl` 也无效果
+- **修改内容**：改为 `--radius: 0.5rem`，让 `rounded-lg` = 0.5rem，`rounded-md` = 6px，`rounded-sm` = 4px
+- **验证结果**：构建通过 ✅
 
 ## 待后续处理的问题
 
-### 设计 Token 相关
-1. **图表硬编码颜色**（🟡）：`UsageChart.jsx`、`ModelUsageChart.jsx`、`DashboardPage.jsx` 中的 Recharts 图表使用硬编码颜色值（如 `#4318FF`、`#A3AED0`、`#fff` tooltip 背景），未使用 CSS 变量，暗色模式下 tooltip 背景色不协调。建议提取为 CSS 变量或从 Tailwind config 读取。
+### 1. 更多 a11y 增强
+- **严重程度**：🟡
+- **说明**：整体项目仅 24 处 aria/role/sr-only，建议后续逐步为所有交互元素添加 aria-label，特别是：
+  - ContactPage 表单 input 应绑定 `<label htmlFor>`（当前用视觉 label）
+  - 各处图标按钮添加 sr-only 说明
+  - 动画组件添加 `aria-hidden` 或 `role="presentation"`
 
-2. **Toast 样式硬编码**（🟢）：`index.css` 中 Toastify 样式使用硬编码 `#fff`、`#07bc0c` 等颜色，暗色模式下观感不佳。
+### 2. Legacy 页面硬编码中文
+- **严重程度**：🟡
+- **说明**：`EditToken.js`, `EditChannel.js`, `EditUser.js`, `semantic-shim.js` 中仍有少量硬编码中文 placeholder/错误消息。这些属于旧版 admin 页面，建议在功能重写时一并处理。
 
-### 响应式设计
-3. **表格在小屏溢出**（🟡）：`ApiKeyTable` 有 8 列数据，在移动端横向溢出。建议添加 `overflow-x-auto` 容器或在小屏使用卡片布局。（`BillingTable` 同理）
+### 3. Toast 颜色硬编码
+- **严重程度**：🟢
+- **说明**：`index.css` 中 Toast 样式使用硬编码 hex 色值。功能正常（dark/light 已分别处理），但理想做法是引用 CSS 变量。
 
-4. **LandingPage TerminalAnimation 仅桌面可见**（🟢）：`className='hidden lg:block'` 导致小屏用户无法看到终端动画演示，可考虑在中等屏幕下以更紧凑形式展示。
-
-### 组件封装
-5. **semantic-shim FormDropdown 点击外部关闭依赖 mousedown**（🟢）：使用 `document.addEventListener('mousedown')` 实现点击外部关闭，缺少 Escape 键关闭支持。
-
-6. **semantic-shim Dropdown 使用 `<details>` 元素**（🟡）：`<details>` 元素的交互行为不受 React 状态管理，可能导致状态不同步。建议重构为受控组件。
-
-### 可访问性 (a11y)
-7. **LoginForm/RegisterForm 表单输入缺少关联 label**（🟡）：表单输入只有 `placeholder` 没有 `<Label>` 关联，屏幕阅读器无法正确描述字段用途。
-
-8. **颜色对比度**（🟢）：`text-muted-foreground` 在某些背景下对比度可能不足 4.5:1（WCAG AA），需具体场景测试。
-
-### 国际化
-9. **旧版页面部分中文硬编码**（🟢）：新版 console/marketing 页面大量中文硬编码未走 i18n（如 "设置"、"个人信息"、"系统令牌" 等），但考虑到项目定位为面向中国市场的产品，且 i18n fallback 为 `zh`，这些暂不构成问题。如未来需要国际化，需大规模迁移。
-
-### 安全相关
-10. **dangerouslySetInnerHTML 使用**（🟢）：`Home/index.js`、`About/index.js`、`render.js`、`Footer.js`、`OtherSetting.js` 中使用了 `dangerouslySetInnerHTML`，内容来源为管理员配置，风险可控，但建议加入 DOMPurify 净化。
-
----
+### 4. UsagePage/AdminUsageMonitor 图表 Tooltip
+- **严重程度**：🟡
+- **说明**：与 DashboardPage 同类问题，其他含 Recharts 的页面也应检查 Tooltip 样式。
 
 ## 新增/修改的测试
-
-本次评审未新增测试文件。项目当前无前端单元测试配置，建议后续为核心业务组件（ApiKeyTable、PlanCard、QuotaUsageBar）添加 React Testing Library 测试。
-
----
-
-## 变更文件列表
-
-| 文件 | 变更类型 | 修改行数 |
-|------|---------|---------|
-| `src/components/RegisterForm.js` | Bug Fix | 1 行 |
-| `src/components/LoginForm.js` | Bug Fix + i18n | 2 行 |
-| `src/components/Loading.js` | a11y | 1 行 |
-| `src/components/layout/AuthLayout.jsx` | i18n | 1 行 |
-| `src/components/business/ApiKeyTable.jsx` | a11y | 6 行 |
-| `src/pages/console/SettingsPage.jsx` | a11y + i18n | 2 行 |
-| `src/helpers/semantic-shim.js` | 性能 + a11y | ~40 行 |
-| `src/index.css` | 清理 + 修复 | -95 行 |
+- 无新增自动化测试（UI 变更为样式和标记级别，通过构建验证 + 视觉检查确认）
+- 建议后续添加：响应式断点视觉回归测试（Playwright viewport resize）

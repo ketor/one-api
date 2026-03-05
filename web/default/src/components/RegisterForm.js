@@ -190,7 +190,7 @@ const RegisterForm = () => {
           className='w-full'
           disabled={loading}
         >
-          {loading ? '注册中...' : t('auth.register.button')}
+          {loading ? t('auth.register.registering', '注册中...') : t('auth.register.button')}
         </Button>
       </form>
 

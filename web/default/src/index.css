@@ -66,7 +66,7 @@
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 231 100% 63%;
-    --radius: 0px;
+    --radius: 0.5rem;
 
     /* Sidebar — light */
     --sidebar-background: 0 0% 98%;

@@ -189,7 +189,7 @@ const LandingPage = () => {
           />
         </div>
         <div className='relative z-10 text-center max-w-xyz px-5 py-32'>
-          <h1 className='text-[64px] font-medium leading-[76px] text-white mb-4'>
+          <h1 className='text-3xl sm:text-5xl md:text-[64px] font-medium leading-tight sm:leading-tight md:leading-[76px] text-white mb-4'>
             <BlurText
               text={t('marketing.hero.title_line1')}
               delay={80}
@@ -232,7 +232,7 @@ const LandingPage = () => {
             </div>
           </FadeIn>
           <FadeIn delay={0.8} distance={15}>
-            <div className='flex justify-center gap-8 mt-8 text-sm font-light text-xyz-white-6'>
+            <div className='flex flex-col sm:flex-row justify-center gap-3 sm:gap-8 mt-8 text-sm font-light text-xyz-white-6'>
               <span className='flex items-center gap-2'>
                 <span className='w-1.5 h-1.5 rounded-full bg-green-400' />
                 {t('marketing.hero.free_trial')}
@@ -284,7 +284,7 @@ const LandingPage = () => {
               staggerDelay={0.1}
               direction='up'
               distance={40}
-              className='grid grid-cols-4 mx-auto'
+              className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mx-auto'
               style={{ gap: '20px' }}
             >
               {plans.map((plan) => {
@@ -458,7 +458,7 @@ const LandingPage = () => {
               staggerDelay={0.1}
               direction='up'
               distance={30}
-              className='grid grid-cols-4 gap-0'
+              className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0'
             >
               {tools.map((tool) => (
                 <div

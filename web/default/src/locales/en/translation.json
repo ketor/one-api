@@ -821,6 +821,7 @@
       "get_code": "Get code",
       "get_code_retry": "Retry ({{countdown}})",
       "button": "Register",
+      "registering": "Registering...",
       "has_account": "Have an account?",
       "login": "Login"
     },
@@ -1264,7 +1265,20 @@
       "free_plan": "Free",
       "loading": "Loading...",
       "upgrade": "Upgrade Plan"
-    }
+    },
+    "admin": {
+      "title": "Admin Panel",
+      "dashboard": "Dashboard",
+      "keys_audit": "Key Audit",
+      "usage_monitor": "Usage Monitor",
+      "user_management": "User Management",
+      "channel_management": "Channel Management",
+      "redemption_management": "Redemption Management",
+      "system_settings": "System Settings",
+      "back_to_console": "Back to Console",
+      "role": "Administrator"
+    },
+    "switch_language": "Switch language"
   },
   "marketing_footer": {
     "product": "Product",

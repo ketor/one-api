@@ -52,7 +52,7 @@ const PasswordResetForm = () => {
     setDisableButton(true);
     if (!email) return;
     if (turnstileEnabled && turnstileToken === '') {
-      showInfo('请稍后几秒重试，Turnstile 正在检查用户环境！');
+      showInfo(t('messages.error.turnstile_wait'));
       return;
     }
     setLoading(true);
